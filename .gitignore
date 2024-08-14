@@ -8,5 +8,6 @@ node_modules/
 .env
 
 # Scraper data
+old.scraper.js
 latest_userData.json
 latest_profile_screenshot.png
