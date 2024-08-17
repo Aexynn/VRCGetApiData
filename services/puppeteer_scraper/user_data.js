@@ -4,6 +4,12 @@ const readline = require("readline");
 const fs = require("fs");
 const path = require("path");
 
+// Check if directory exist, and if not, create it.
+if (!fs.existsSync(`data/${process.env.USER_ID}`)) {
+  console.log(`Creating directory: data/${process.env.USER_ID}`);
+  fs.mkdirSync(`data/${process.env.USER_ID}`, { recursive: true });
+}
+
 // Function to wait for user input in the console
 function waitForUserInput(query) {
   const rl = readline.createInterface({
@@ -173,15 +179,15 @@ async function saveData(page, url, dataDir, user_id) {
 
     // Write the collected data to separate JSON files
     fs.writeFileSync(
-      path.join(dataDir, `${user_id}_user_data.json`),
+      path.join(dataDir, `${user_id}/user_data.json`),
       JSON.stringify(data.user, null, 2)
     );
     fs.writeFileSync(
-      path.join(dataDir, `${user_id}_worlds_data.json`),
+      path.join(dataDir, `${user_id}/worlds_data.json`),
       JSON.stringify(data.worlds, null, 2)
     );
     fs.writeFileSync(
-      path.join(dataDir, `${user_id}_groupsRepresented_data.json`),
+      path.join(dataDir, `${user_id}/groupsRepresented_data.json`),
       JSON.stringify(data.groups.represented, null, 2)
     );
 
@@ -193,7 +199,7 @@ async function saveData(page, url, dataDir, user_id) {
       data.groups.list = groupsList;
 
       fs.writeFileSync(
-        path.join(dataDir, `${user_id}_groupsList_data.json`),
+        path.join(dataDir, `${user_id}/groupsList_data.json`),
         JSON.stringify(data.groups.list, null, 2)
       );
     } else {
@@ -370,7 +376,7 @@ async function saveData(page, url, dataDir, user_id) {
       // Take a screenshot of the page
       const screenshotPath = path.join(
         env.data,
-        `${env.user_id}_screenshot.png`
+        `${env.user_id}/screenshot.png`
       );
       await page.screenshot({
         path: screenshotPath,

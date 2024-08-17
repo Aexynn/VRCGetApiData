@@ -20,7 +20,7 @@ let error_server =
 
 app.get("/api/users", (req, res) => {
   fs.readFile(
-    `${env.data}/${env.user_id}_user_data.json`,
+    `${env.data}/${env.user_id}/user_data.json`,
     "utf8",
     (err, data) => {
       if (err) {
@@ -42,7 +42,7 @@ app.get("/api/users", (req, res) => {
 
 app.get("/api/users/worlds", (req, res) => {
   fs.readFile(
-    `${env.data}/${env.user_id}_worlds_data.json`,
+    `${env.data}/${env.user_id}/worlds_data.json`,
     "utf8",
     (err, data) => {
       if (err) {
@@ -64,7 +64,7 @@ app.get("/api/users/worlds", (req, res) => {
 
 app.get("/api/users/groups", (req, res) => {
   fs.readFile(
-    `${env.data}/${env.user_id}_groupsList_data.json`,
+    `${env.data}/${env.user_id}/groupsList_data.json`,
     "utf8",
     (err, data) => {
       if (err) {
@@ -86,7 +86,7 @@ app.get("/api/users/groups", (req, res) => {
 
 app.get("/api/users/groups/represented", (req, res) => {
   fs.readFile(
-    `${env.data}/${env.user_id}_groupsRepresented_data.json`,
+    `${env.data}/${env.user_id}/groupsRepresented_data.json`,
     "utf8",
     (err, data) => {
       if (err) {
@@ -107,7 +107,7 @@ app.get("/api/users/groups/represented", (req, res) => {
 });
 
 app.get("/api/users/screenshot", (req, res) => {
-  fs.readFile(`${env.data}/${env.user_id}_screenshot.png`, (err, data) => {
+  fs.readFile(`${env.data}/${env.user_id}/screenshot.png`, (err, data) => {
     if (err) {
       console.error("Error reading screenshot file:", err);
       return res.status(500).json(error_server);
