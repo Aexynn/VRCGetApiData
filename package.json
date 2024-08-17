@@ -6,7 +6,7 @@
   "scripts": {
     "scrape:user": "node services/puppeteer_scraper/user_data.js",
     "web:start": "node services/express_web/server.js",
-    "all:launch": "concurrently -p \"[{name}] {time}-{pid}\" -n \"SCRPE,HTTP\" -c \"bgRed.bold,bgBlue.bold\" \"node run scrape:user\" \"node run web:start\""
+    "start": "concurrently -i -p \"[{name}] {time}-{pid}\" -n \"SCRP,HTTP\" -c \"bgRed.bold,bgBlue.bold\" \"npm run scrape:user\" \"npm run web:start\" --default-input-target"
   },
   "repository": {
     "type": "git",
