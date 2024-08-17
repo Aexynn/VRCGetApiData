@@ -2,6 +2,7 @@ const puppeteer = require("puppeteer");
 require("dotenv").config();
 const readline = require("readline");
 const fs = require("fs");
+const path = require("path");
 
 // Function to wait for user input in the console
 function waitForUserInput(query) {
@@ -43,6 +44,8 @@ async function fetchJsonFromUrl(page, url) {
     const content = await page.evaluate(
       () => document.querySelector("body").innerText
     );
+
+    console.log(`Successfully fetched ${url} data.`);
     return JSON.parse(content);
   } catch (error) {
     console.error(`An error occurred while fetching data from ${url}:`, error);
@@ -50,56 +53,191 @@ async function fetchJsonFromUrl(page, url) {
   }
 }
 
-async function saveData(page) {
+async function checkIfMidnight() {
+  const currentTime = new Date();
+  const currentHour = currentTime.getHours();
+  const currentMinute = currentTime.getMinutes();
+  const currentSecond = currentTime.getSeconds();
+
+  return currentHour === 0 && currentMinute === 0 && currentSecond === 0;
+}
+
+async function saveData(page, url, dataDir, user_id) {
   const data = {
-    users: {
-      scrape: {},
+    user: {
+      manual: {},
       api: {},
     },
     groups: {
       represented: {},
       list: {},
     },
+    worlds: {},
   };
 
   try {
-    // Extract data using scraping
-    data.users.scrape.user_rank = await page.$eval(
+    console.log("Starting data scraping...");
+
+    // Ensure the page is fully loaded
+    await page.waitForSelector('div[title="User Rank"]', { visible: true });
+    await page.waitForSelector('div[title^="Last online"]', { visible: true });
+
+    // Extract user-related data using scraping
+    data.user.manual.user_rank = await page.$eval(
       'div[title="User Rank"]',
       (el) => el.textContent.trim()
     );
-    data.users.scrape.last_login = await page.$eval(
+    console.log("User rank scraped:", data.user.manual.user_rank);
+
+    data.user.manual.last_login = await page.$eval(
       'div[title^="Last online"]',
       (el) => el.textContent.trim()
     );
+    console.log("Last login scraped:", data.user.manual.last_login);
+
+    // Scrape public worlds information
+    const worldElements = await page.$$(
+      ".tw-snap-center.tw-w-80.tw-inline-block.tw-h-96.tw-scroll-ml-6.tw-snap-always"
+    );
+
+    const worldsData = [];
+    for (let i = 0; i < worldElements.length; i++) {
+      const worldElement = worldElements[i];
+      const worldData = {};
+
+      worldData.title = await worldElement.$eval(
+        "h4.css-1yw163h.e12w85u87",
+        (el) => el.textContent.trim()
+      );
+      worldData.image = await worldElement.$eval(
+        "img.css-c07466.e12w85u88",
+        (el) => el.src
+      );
+      worldData.online_players = await worldElement.$eval(
+        'div[title="Online Players"]',
+        (el) => el.textContent.trim()
+      );
+      worldData.favorites = await worldElement.$eval(
+        'div[title="Favorites"]',
+        (el) => el.textContent.trim()
+      );
+      worldData.last_updated = await worldElement.$eval(
+        'div[title="Updated"]',
+        (el) => el.textContent.trim()
+      );
+      worldData.open_world_page = await worldElement.$eval(
+        "a.css-1alc1xs.e12w85u80",
+        (el) => el.href
+      );
+
+      // Extract platform information
+      const platformDivs = await worldElement.$$(
+        ".css-1347k0o.e12w85u816 > div"
+      );
+      let isPC = false;
+      let isQuest = false;
+
+      for (const div of platformDivs) {
+        const title = await div.evaluate((el) => el.getAttribute("title"));
+        if (title === "Is a PC World") {
+          isPC = true;
+        } else if (title === "Is a Quest World") {
+          isQuest = true;
+        }
+      }
+
+      worldData.platform = {
+        windows: isPC,
+        android: isQuest,
+      };
+
+      worldsData.push(worldData);
+      console.log(`World ${i} data scraped:`, worldData);
+    }
+    data.worlds = worldsData;
 
     // URLs for JSON data
-    const apiUserUrl = `https://vrchat.com/api/1/users/${process.env.USER_ID}`;
-    const apiGroupsUrl = `${apiUserUrl}/groups`;
+    const apiUserUrl = `${url}/${user_id}`;
     const apiRepresentedGroupUrl = `${apiUserUrl}/groups/represented`;
 
+    console.log("Fetching JSON data from API...");
+
     // Fetch JSON data from APIs
-    data.users.api = await fetchJsonFromUrl(page, apiUserUrl);
-    data.groups.list = await fetchJsonFromUrl(page, apiGroupsUrl);
-    data.groups.represented = await fetchJsonFromUrl(
+    data.user.api = await fetchJsonFromUrl(page, apiUserUrl);
+    const representedGroup = await fetchJsonFromUrl(
       page,
       apiRepresentedGroupUrl
     );
+
+    data.groups.represented = representedGroup;
+
+    // Write the collected data to separate JSON files
+    fs.writeFileSync(
+      path.join(dataDir, `${user_id}_user_data.json`),
+      JSON.stringify(data.user, null, 2)
+    );
+    fs.writeFileSync(
+      path.join(dataDir, `${user_id}_worlds_data.json`),
+      JSON.stringify(data.worlds, null, 2)
+    );
+    fs.writeFileSync(
+      path.join(dataDir, `${user_id}_groupsRepresented_data.json`),
+      JSON.stringify(data.groups.represented, null, 2)
+    );
+
+    if (await checkIfMidnight()) {
+      console.log("Fetching list of groups from API...");
+
+      const apiGroupsUrl = `${apiUserUrl}/groups`;
+      const groupsList = await fetchJsonFromUrl(page, apiGroupsUrl);
+      data.groups.list = groupsList;
+
+      fs.writeFileSync(
+        path.join(dataDir, `${user_id}_groupsList_data.json`),
+        JSON.stringify(data.groups.list, null, 2)
+      );
+    } else {
+      console.log(
+        "Skipping fetching list of groups from API... (Is not midnight)"
+      );
+    }
+
+    console.log("Data extraction and scraping completed.");
+    console.log(`Data saved to ${dataDir}.`);
   } catch (error) {
     console.error(
       "An error occurred while extracting or fetching data:",
       error
     );
   }
-
-  // Write the collected data to a JSON file
-  fs.writeFileSync("latest_userData.json", JSON.stringify(data, null, 2));
 }
 
 (async () => {
+  // Ensure environment variables are set
+  const env = {
+    nickname: process.env.NICKNAME,
+    password: process.env.PASSWORD,
+    user_id: process.env.USER_ID,
+    domain: "https://vrchat.com",
+    data: "data",
+  };
+
+  if (!env.nickname || !env.password || !env.user_id) {
+    throw new Error(
+      "Environment variables NICKNAME, PASSWORD, and USER_ID must be set"
+    );
+  }
+
   // Launch a browser instance
-  const domain = "https://vrchat.com";
-  const browser = await puppeteer.launch({ headless: true });
+  const browser = await puppeteer.launch({
+    headless: true,
+    ignoreHTTPSErrors: true,
+    args: [`--window-size=1389,1818`],
+    defaultViewport: {
+      width: 1389,
+      height: 1818,
+    },
+  });
   const page = await browser.newPage();
   const navigationTimeout = 60000; // 60 seconds
 
@@ -108,10 +246,10 @@ async function saveData(page) {
     await page.setDefaultNavigationTimeout(navigationTimeout);
 
     // Navigate to the login page
-    const response = await page.goto(`${domain}/home/login`, {
+    const response = await page.goto(`${env.domain}/home/login`, {
       waitUntil: "networkidle2",
     });
-    console.log("Request status: ", response?.status(), "\n\n\n\n");
+    console.log("Request status: ", response?.status());
 
     // Selectors for the username, password input, and login button
     const privacyButtonSelector = "#onetrust-accept-btn-handler";
@@ -131,7 +269,7 @@ async function saveData(page) {
         button.click();
       }
     }, privacyButtonSelector);
-    console.log("Privacy button clicked.", "\n\n");
+    console.log("Privacy button clicked.");
 
     // Waits for the username and password fields to appear
     await page.waitForSelector(usernameFieldSelector, {
@@ -141,26 +279,14 @@ async function saveData(page) {
       timeout: navigationTimeout,
     });
 
-    // Ensure environment variables are set
-    const env = {
-      username: process.env.NICKNAME,
-      password: process.env.PASSWORD,
-    };
-
-    if (!env.username || !env.password) {
-      throw new Error(
-        "Environment variables NICKNAME and PASSWORD must be set"
-      );
-    }
-
     // Type the username and password into the input fields
     console.log("Logging in...");
-    await page.type(usernameFieldSelector, env.username, { delay: 100 });
+    await page.type(usernameFieldSelector, env.nickname, { delay: 100 });
     await page.type(passwordFieldSelector, env.password, { delay: 100 });
 
     // Click the login button
     await page.click(loginButtonSelector);
-    console.log("Login button clicked. Waiting for 2FA page...", "\n\n");
+    console.log("Login button clicked. Waiting for 2FA page...");
 
     // Wait for navigation to the 2FA page
     await page.waitForNavigation({
@@ -170,7 +296,7 @@ async function saveData(page) {
 
     // Verify the current URL to ensure we are on the 2FA page
     const currentURL = page.url();
-    if (currentURL !== `${domain}/home/emailtwofactorauth`) {
+    if (currentURL !== `${env.domain}/home/emailtwofactorauth`) {
       throw new Error("Failed to navigate to the 2FA page");
     }
     console.log("Navigated to the 2FA page.");
@@ -218,7 +344,7 @@ async function saveData(page) {
         button.click();
       }
     }, next2FAButtonSelector);
-    console.log("2FA button clicked.", "\n\n");
+    console.log("2FA button clicked.");
 
     // Wait for the page to redirect after 2FA
     await page.waitForNavigation({
@@ -227,7 +353,7 @@ async function saveData(page) {
     });
 
     // Navigate to the specific user page
-    const userPageURL = `${domain}/home/user/${process.env.USER_ID}`;
+    const userPageURL = `${env.domain}/home/user/${env.user_id}`;
     await page.goto(userPageURL, {
       waitUntil: "networkidle2",
       timeout: navigationTimeout,
@@ -242,15 +368,21 @@ async function saveData(page) {
       await wait(1000); // Wait 1 second for greater reliability
 
       // Take a screenshot of the page
+      const screenshotPath = path.join(
+        env.data,
+        `${env.user_id}_screenshot.png`
+      );
       await page.screenshot({
-        path: "latest_profile_screenshot.png",
+        path: screenshotPath,
         fullPage: true,
       });
 
-      console.log("Latest profile screenshot taken.");
+      console.log(
+        `Latest profile screenshot taken and saved to ${screenshotPath}.`
+      );
 
       // Save the data to a file
-      await saveData(page);
+      await saveData(page, `${env.domain}/api/1/users`, env.data, env.user_id);
 
       console.log("Data saved.");
 
@@ -258,10 +390,19 @@ async function saveData(page) {
       const waitTime =
         Math.floor(Math.random() * (2 * 60 * 60 * 1000 - 1 * 60 * 60 * 1000)) +
         1 * 60 * 60 * 1000;
-      await new Promise((resolve) => setTimeout(resolve, waitTime));
+      console.log(
+        `Waiting for ${waitTime / 1000 / 60} minutes before the next run...`
+      );
+      await wait(waitTime);
 
       // Reload the page
-      await page.reload({ waitUntil: "networkidle2" });
+      // Navigate to the specific user page
+      const userPageURL = `${env.domain}/home/user/${env.user_id}`;
+      await page.goto(userPageURL, {
+        waitUntil: "networkidle2",
+        timeout: navigationTimeout,
+      });
+      console.log("Navigated to user page.");
     }
   } catch (error) {
     console.error("An error occurred:", error);

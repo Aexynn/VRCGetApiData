@@ -1,10 +1,12 @@
 {
-  "name": "vrc-scraper-userdata",
-  "version": "0.0.1",
-  "description": "A scraper for VRChat to retrieve information directly from the site & the API to obtain information on a user (friend) such as groups joined, group represented, profile, rank, etc...",
+  "name": "vrc-scraper-data",
+  "version": "0.0.2",
+  "description": "A Scraper & API Website for VRChat to retrieve information directly from the site & the API to obtain information on a user (friend) such as groups joined, group represented, profile, rank, etc...",
   "main": "launch.js",
   "scripts": {
-    "test": "node scraper.js"
+    "scrape:user": "node services/puppeteer_scraper/user_data.js",
+    "web:start": "node services/express_web/server.js",
+    "all:launch": "concurrently -p \"[{name}] {time}-{pid}\" -n \"SCRPE,HTTP\" -c \"bgRed.bold,bgBlue.bold\" \"node run scrape:user\" \"node run web:start\""
   },
   "repository": {
     "type": "git",
@@ -23,7 +25,8 @@
     "profile",
     "friends",
     "group",
-    "puppeteer"
+    "puppeteer",
+    "express"
   ],
   "author": "Kyuddle",
   "license": "ISC",
@@ -32,7 +35,9 @@
   },
   "homepage": "https://github.com/Kyuddle/VRCScraperUserData#readme",
   "dependencies": {
+    "concurrently": "^8.2.2",
     "dotenv": "^16.4.5",
+    "express": "^4.19.2",
     "puppeteer": "^23.1.0",
     "readline": "^1.3.0"
   }
