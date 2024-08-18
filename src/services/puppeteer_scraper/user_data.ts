@@ -289,8 +289,8 @@ async function saveData(
     vrchat_domain: "https://vrchat.com",
     browser: {
       headless: true,
-      width: 1920,
-      height: 1080,
+      width: 1389,
+      height: 1818,
     },
     data_folder: "data",
   };
