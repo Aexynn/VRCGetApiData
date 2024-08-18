@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch: # Ajout de ce déclencheur permet une exécution manuelle
+
 jobs:
   build:
     runs-on: ubuntu-latest
