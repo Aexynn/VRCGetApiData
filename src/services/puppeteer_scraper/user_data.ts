@@ -298,10 +298,22 @@ async function saveData(
   // Define environment variables
   // Définir les variables d'environnement
   const env = {
-    user_id: process.env.USER_ID!,
-    nickname: process.env.NICKNAME!,
-    password: process.env.PASSWORD!,
+    user_id: process.env.USER_ID!, // User ID retrieved from environment variables
+    nickname: process.env.NICKNAME!, // Nickname retrieved from environment variables
+    // Determine the password source
+    // Déterminer la source du mot de passe
+    password:
+      process.env.PASSWORD ||
+      (await waitForUserInput(
+        "Password not found in environment. Please enter your password: "
+      )),
   };
+
+  // Ensure that env.password is defined before use
+  // Assurer que env.password est défini avant utilisation
+  if (!env.password) {
+    throw new Error("Password is required but not provided.");
+  }
 
   // Define the URLs and selectors for the login and profile pages
   // Définir les URLs et les sélecteurs pour les pages de connexion et de profil
