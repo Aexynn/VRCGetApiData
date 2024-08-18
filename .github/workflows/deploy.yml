@@ -1,0 +1,26 @@
+name: Build and Deploy Compilation to Repository
+on:
+  push:
+    branches:
+      - main 
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    - name: Install dependencies
+      run: npm install
+    - name: Clean TypeScript output directory
+      run: npm run ts:clean
+    - name: Build TypeScript
+      run: npm run ts:build
+    - name: Deploy dist folder to Repository
+      run: |
+        cp -R dist/* ./
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
