@@ -7,6 +7,7 @@ node_modules/
 # Env
 .env
 
-# Scraper data
+# Projects folder
+dist/
 .old/
 data/
