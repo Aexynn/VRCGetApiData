@@ -101,9 +101,15 @@ async function saveData(page, url, dataDir, user_id) {
     );
     console.log("Last login scraped:", data.user.manual.last_login);
 
+    data.user.manual.user_status = await page.$eval(
+      'div[role="note"][aria-label^="User Status: "]',
+      (el) => el.getAttribute("aria-label").replace("User Status: ", "").trim()
+    );
+    console.log("User Status scraped:", data.user.manual.user_status);
+
     // Scrape public worlds information
     const worldElements = await page.$$(
-      ".tw-snap-center.tw-w-80.tw-inline-block.tw-h-96.tw-scroll-ml-6.tw-snap-always"
+      'div[data-scrollkey^="wrld_"][aria-label="World Card"]'
     );
 
     const worldsData = [];
@@ -112,11 +118,11 @@ async function saveData(page, url, dataDir, user_id) {
       const worldData = {};
 
       worldData.title = await worldElement.$eval(
-        "h4.css-1yw163h.e12w85u87",
+        'a[aria-label="Open World Page"] h4',
         (el) => el.textContent.trim()
       );
       worldData.image = await worldElement.$eval(
-        "img.css-c07466.e12w85u88",
+        'a[aria-label="World Image"] img',
         (el) => el.src
       );
       worldData.online_players = await worldElement.$eval(
@@ -132,13 +138,13 @@ async function saveData(page, url, dataDir, user_id) {
         (el) => el.textContent.trim()
       );
       worldData.open_world_page = await worldElement.$eval(
-        "a.css-1alc1xs.e12w85u80",
+        'a[aria-label="Open World Page"]',
         (el) => el.href
       );
 
       // Extract platform information
       const platformDivs = await worldElement.$$(
-        ".css-1347k0o.e12w85u816 > div"
+        'a[aria-label="World Image"] div div[role="note"]'
       );
       let isPC = false;
       let isQuest = false;
@@ -191,7 +197,13 @@ async function saveData(page, url, dataDir, user_id) {
       JSON.stringify(data.groups.represented, null, 2)
     );
 
-    if (await checkIfMidnight()) {
+    // Fetch list of groups
+    isMidnight = await checkIfMidnight();
+    console.log(
+      'Check if it is midnight to fetch "list of groups"...',
+      isMidnight
+    );
+    if (isMidnight === true) {
       console.log("Fetching list of groups from API...");
 
       const apiGroupsUrl = `${apiUserUrl}/groups`;
@@ -224,24 +236,58 @@ async function saveData(page, url, dataDir, user_id) {
     nickname: process.env.NICKNAME,
     password: process.env.PASSWORD,
     user_id: process.env.USER_ID,
-    domain: "https://vrchat.com",
-    data: "data",
   };
 
-  if (!env.nickname || !env.password || !env.user_id) {
+  if (!env || !env.nickname || !env.password || !env.user_id) {
     throw new Error(
       "Environment variables NICKNAME, PASSWORD, and USER_ID must be set"
     );
   }
 
-  // Launch a browser instance
-  const browser = await puppeteer.launch({
-    headless: true,
-    ignoreHTTPSErrors: true,
-    args: [`--window-size=1389,1818`],
-    defaultViewport: {
+  // Config
+  const cfg = {
+    data_folder: "data",
+    vrchat_domain: "https://vrchat.com",
+    browser: {
+      headless: true,
+      ignoreHTTPSErrors: true,
       width: 1389,
       height: 1818,
+    },
+  };
+
+  // URLs used in the script
+  const urls = {
+    login: `${cfg.vrchat_domain}/home/login`,
+    twoFA: `${cfg.vrchat_domain}/home/emailtwofactorauth`,
+    profile: `${cfg.vrchat_domain}/home/user/${env.user_id}`,
+    api: {
+      users: `${cfg.vrchat_domain}/api/1/users`,
+    },
+  };
+
+  // Selectors for the username, password input, login button, privacy button and 2fa input & button
+  const selector = {
+    field: {
+      username: "#username_email",
+      password: "#password",
+      twoFA: 'input[name="code"]',
+    },
+    button: {
+      privacy: "#onetrust-accept-btn-handler",
+      login: 'button[aria-label="Login"]',
+      next2FA: 'button[type="submit"]',
+    },
+  };
+
+  // Launch a browser instance
+  const browser = await puppeteer.launch({
+    headless: cfg.browser.headless,
+    ignoreHTTPSErrors: cfg.browser.ignoreHTTPSErrors,
+    args: [`--window-size=${cfg.browser.width},${cfg.browser.height}`],
+    defaultViewport: {
+      width: cfg.browser.width,
+      height: cfg.browser.height,
     },
   });
   const page = await browser.newPage();
@@ -252,21 +298,13 @@ async function saveData(page, url, dataDir, user_id) {
     await page.setDefaultNavigationTimeout(navigationTimeout);
 
     // Navigate to the login page
-    const response = await page.goto(`${env.domain}/home/login`, {
+    const response = await page.goto(urls.login, {
       waitUntil: "networkidle2",
     });
     console.log("Request status: ", response?.status());
 
-    // Selectors for the username, password input, and login button
-    const privacyButtonSelector = "#onetrust-accept-btn-handler";
-    const usernameFieldSelector = "#username_email";
-    const passwordFieldSelector = "#password";
-    const loginButtonSelector = 'button[aria-label="Login"]';
-    const next2FAButtonSelector = 'button[type="submit"]';
-    const twoFAInputSelector = 'input[name="code"]';
-
     // Wait for the privacy button to appear and click it
-    await page.waitForSelector(privacyButtonSelector, {
+    await page.waitForSelector(selector.button.privacy, {
       timeout: navigationTimeout,
     });
     await page.evaluate((selector) => {
@@ -274,24 +312,24 @@ async function saveData(page, url, dataDir, user_id) {
       if (button) {
         button.click();
       }
-    }, privacyButtonSelector);
+    }, selector.button.privacy);
     console.log("Privacy button clicked.");
 
     // Waits for the username and password fields to appear
-    await page.waitForSelector(usernameFieldSelector, {
+    await page.waitForSelector(selector.field.username, {
       timeout: navigationTimeout,
     });
-    await page.waitForSelector(passwordFieldSelector, {
+    await page.waitForSelector(selector.field.password, {
       timeout: navigationTimeout,
     });
 
     // Type the username and password into the input fields
     console.log("Logging in...");
-    await page.type(usernameFieldSelector, env.nickname, { delay: 100 });
-    await page.type(passwordFieldSelector, env.password, { delay: 100 });
+    await page.type(selector.field.username, env.nickname, { delay: 100 });
+    await page.type(selector.field.password, env.password, { delay: 100 });
 
     // Click the login button
-    await page.click(loginButtonSelector);
+    await page.click(selector.button.login);
     console.log("Login button clicked. Waiting for 2FA page...");
 
     // Wait for navigation to the 2FA page
@@ -302,13 +340,13 @@ async function saveData(page, url, dataDir, user_id) {
 
     // Verify the current URL to ensure we are on the 2FA page
     const currentURL = page.url();
-    if (currentURL !== `${env.domain}/home/emailtwofactorauth`) {
+    if (currentURL !== urls.twoFA) {
       throw new Error("Failed to navigate to the 2FA page");
     }
     console.log("Navigated to the 2FA page.");
 
     // Wait for the 2FA input fields
-    await page.waitForSelector(twoFAInputSelector, {
+    await page.waitForSelector(selector.field.twoFA, {
       timeout: navigationTimeout,
     });
 
@@ -318,7 +356,7 @@ async function saveData(page, url, dataDir, user_id) {
     );
 
     // Enter each digit into the corresponding input field
-    const inputFields = await page.$$(twoFAInputSelector);
+    const inputFields = await page.$$(selector.field.twoFA);
     if (inputFields.length !== twoFA.length) {
       throw new Error(
         "The number of 2FA input fields does not match the code length."
@@ -337,7 +375,7 @@ async function saveData(page, url, dataDir, user_id) {
         return button && !button.disabled && button.offsetParent !== null;
       },
       { timeout: navigationTimeout },
-      next2FAButtonSelector
+      selector.button.next2FA
     );
 
     // Add a slight delay before clicking the button to ensure it's clickable
@@ -349,7 +387,7 @@ async function saveData(page, url, dataDir, user_id) {
       if (button) {
         button.click();
       }
-    }, next2FAButtonSelector);
+    }, selector.button.next2FA);
     console.log("2FA button clicked.");
 
     // Wait for the page to redirect after 2FA
@@ -359,8 +397,7 @@ async function saveData(page, url, dataDir, user_id) {
     });
 
     // Navigate to the specific user page
-    const userPageURL = `${env.domain}/home/user/${env.user_id}`;
-    await page.goto(userPageURL, {
+    await page.goto(urls.profile, {
       waitUntil: "networkidle2",
       timeout: navigationTimeout,
     });
@@ -371,11 +408,11 @@ async function saveData(page, url, dataDir, user_id) {
       await waitForLoadingToDisappear(page);
 
       // Wait a moment to make sure the page is stable
-      await wait(1000); // Wait 1 second for greater reliability
+      await wait(20000); // Wait 20 seconds for the page to stabilize and beautiful screenshot
 
       // Take a screenshot of the page
       const screenshotPath = path.join(
-        env.data,
+        cfg.data_folder,
         `${env.user_id}/screenshot.png`
       );
       await page.screenshot({
@@ -388,7 +425,7 @@ async function saveData(page, url, dataDir, user_id) {
       );
 
       // Save the data to a file
-      await saveData(page, `${env.domain}/api/1/users`, env.data, env.user_id);
+      await saveData(page, urls.api.users, cfg.data_folder, env.user_id);
 
       console.log("Data saved.");
 
@@ -403,8 +440,7 @@ async function saveData(page, url, dataDir, user_id) {
 
       // Reload the page
       // Navigate to the specific user page
-      const userPageURL = `${env.domain}/home/user/${env.user_id}`;
-      await page.goto(userPageURL, {
+      await page.goto(urls.profile, {
         waitUntil: "networkidle2",
         timeout: navigationTimeout,
       });
