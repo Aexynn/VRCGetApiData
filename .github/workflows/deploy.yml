@@ -2,14 +2,14 @@ name: Build and Deploy Compilation to Repository
 on:
   push:
     branches:
-      - main 
+      - main
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
@@ -29,13 +29,22 @@ jobs:
         git config user.name "github-actions"
         git config user.email "github-actions@github.com"
         
+    - name: Temporarily modify .gitignore
+      run: |
+        sed -i '/dist/d' .gitignore
+        
     - name: Commit and push dist folder
       run: |
         # Add dist folder
         git add dist
         # Commit changes
-        git commit -m "[Automate] Deploy compiled TS to JS (/dist)"
+        git commit -m "Deploy dist folder"
         # Push changes
         git push
       env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Restore .gitignore
+      run: |
+        # Restore the original .gitignore
+        git checkout .gitignore
