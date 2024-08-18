@@ -26,8 +26,8 @@ jobs:
       
     - name: Configure Git
       run: |
-        git config user.name "github-actions"
-        git config user.email "github-actions@github.com"
+        git config user.name "Kyu2Bot"
+        git config user.email "178714696+Kyu2Bot@users.noreply.github.com"
         
     - name: Temporarily modify .gitignore
       run: |
