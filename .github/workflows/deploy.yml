@@ -9,18 +9,33 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
+        
     - name: Install dependencies
       run: npm install
+      
     - name: Clean TypeScript output directory
       run: npm run ts:clean
+      
     - name: Build TypeScript
       run: npm run ts:build
-    - name: Deploy dist folder to Repository
+      
+    - name: Configure Git
       run: |
-        cp -R dist/* ./
+        git config user.name "github-actions"
+        git config user.email "github-actions@github.com"
+        
+    - name: Commit and push dist folder
+      run: |
+        # Add dist folder
+        git add dist
+        # Commit changes
+        git commit -m "[Automate] Deploy compiled TS to JS (/dist)"
+        # Push changes
+        git push
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
