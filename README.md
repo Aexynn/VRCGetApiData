@@ -99,8 +99,8 @@ $ npm run start
 
 ## :memo: License
 
-This project is under license from MIT. For more details, see the [LICENSE](LICENSE.md) file. <br>
-Made with :heart: by <a href="https://github.com/Kyuddle" target="_blank">Kyuddle.</a>
+This project is under license from MIT. For more details, see the [LICENSE](LICENSE) file. <br>
+Made with :heart: by <a href="https://github.com/Kyuddle" target="_blank">Kyuddle</a>
 
 &#xa0;
 
