@@ -5,31 +5,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const puppeteer_1 = __importDefault(require("puppeteer"));
 const dotenv_1 = require("dotenv");
-const readline_1 = __importDefault(require("readline"));
+const config_1 = require("../../libs/config");
+const user_action_1 = require("../../libs/user_action");
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
+const check_requirements_1 = require("../../libs/check_requirements");
 // Load environment variables
 // Charger les variables d'environnement
 (0, dotenv_1.config)();
 // Create the data directory if it does not exist
 // Créer le répertoire de données si nécessaire
-const userDir = `data/${process.env.USER_ID}`;
-if (!fs_1.default.existsSync(userDir)) {
-    console.log(`Creating directory: ${userDir}`);
-    fs_1.default.mkdirSync(userDir, { recursive: true });
-}
-// Function to wait for user input
-// Fonction pour attendre l'entrée utilisateur
-function waitForUserInput(query) {
-    const rl = readline_1.default.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-    });
-    return new Promise((resolve) => rl.question(query, (answer) => {
-        rl.close();
-        resolve(answer);
-    }));
-}
+(0, check_requirements_1.checkDir)("user");
 // Function to wait for a delay
 // Fonction pour attendre un délai
 function wait(ms) {
@@ -166,62 +152,23 @@ async function saveData(page, url, dataDir, user_id) {
 }
 // Main script
 (async () => {
-    // Define configuration variables and data folder path
-    // Définir les variables de configuration et le chemin du dossier de données
-    const cfg = {
-        vrchat_domain: "https://vrchat.com",
-        browser: {
-            headless: true,
-            width: 1389,
-            height: 1818,
-        },
-        data_folder: "data",
-    };
     // Define environment variables
     // Définir les variables d'environnement
-    const env = {
-        user_id: process.env.USER_ID, // User ID retrieved from environment variables
-        nickname: process.env.NICKNAME, // Nickname retrieved from environment variables
-        // Determine the password source
-        // Déterminer la source du mot de passe
-        password: process.env.PASSWORD ||
-            (await waitForUserInput("Password not found in environment. Please enter your password: ")),
-    };
+    const password = process.env.PASSWORD ||
+        (await (0, user_action_1.waitForUserInput)("Password not found in environment. Please enter your password: "));
     // Ensure that env.password is defined before use
     // Assurer que env.password est défini avant utilisation
-    if (!env.password) {
+    if (!password) {
         throw new Error("Password is required but not provided.");
     }
-    // Define the URLs and selectors for the login and profile pages
-    // Définir les URLs et les sélecteurs pour les pages de connexion et de profil
-    const urls = {
-        login: `${cfg.vrchat_domain}/home/login`,
-        twoFA: `${cfg.vrchat_domain}/home/emailtwofactorauth`,
-        profile: `${cfg.vrchat_domain}/home/user/${env.user_id}`,
-        api: {
-            users: `${cfg.vrchat_domain}/api/1/users`,
-        },
-    };
-    const selector = {
-        field: {
-            username: "#username_email",
-            password: "#password",
-            twoFA: 'input[name="code"]',
-        },
-        button: {
-            privacy: "#onetrust-accept-btn-handler",
-            login: 'button[aria-label="Login"]',
-            next2FA: 'button[type="submit"]',
-        },
-    };
     // Launch Puppeteer browser instance
     // Lancer l'instance de navigateur Puppeteer
     const browser = await puppeteer_1.default.launch({
-        headless: cfg.browser.headless,
-        args: [`--window-size=${cfg.browser.width},${cfg.browser.height}`],
+        headless: config_1.cfg.browser.headless,
+        args: [`--window-size=${config_1.cfg.browser.width},${config_1.cfg.browser.height}`],
         defaultViewport: {
-            width: cfg.browser.width,
-            height: cfg.browser.height,
+            width: config_1.cfg.browser.width,
+            height: config_1.cfg.browser.height,
         },
     });
     const page = await browser.newPage();
@@ -230,35 +177,35 @@ async function saveData(page, url, dataDir, user_id) {
         await page.setDefaultNavigationTimeout(navigationTimeout);
         // Navigate to the login page
         // Naviguer vers la page de connexion
-        const response = await page.goto(urls.login, { waitUntil: "networkidle2" });
+        const response = await page.goto(config_1.urls.login, { waitUntil: "networkidle2" });
         console.log("Request status: ", response?.status());
         // Statut de la requête
         // Wait for and accept the privacy policy
         // Attendre et accepter la politique de confidentialité
-        await page.waitForSelector(selector.button.privacy, {
+        await page.waitForSelector(config_1.selector.button.privacy, {
             timeout: navigationTimeout,
         });
         await page.evaluate((selector) => {
             const button = document.querySelector(selector);
             button?.click();
-        }, selector.button.privacy);
+        }, config_1.selector.button.privacy);
         console.log("Privacy button clicked.");
         // Bouton de confidentialité cliqué
         // Wait for username and password fields to be visible
         // Attendre que les champs d'entrée du nom d'utilisateur et du mot de passe soient visibles
-        await page.waitForSelector(selector.field.username, {
+        await page.waitForSelector(config_1.selector.field.username, {
             timeout: navigationTimeout,
         });
-        await page.waitForSelector(selector.field.password, {
+        await page.waitForSelector(config_1.selector.field.password, {
             timeout: navigationTimeout,
         });
         console.log("Logging in...");
         // Connexion...
-        await page.type(selector.field.username, env.nickname, { delay: 100 });
-        await page.type(selector.field.password, env.password, { delay: 100 });
+        await page.type(config_1.selector.field.username, config_1.env.nickname, { delay: 100 });
+        await page.type(config_1.selector.field.password, password, { delay: 100 });
         // Click the login button
         // Cliquer sur le bouton de connexion
-        await page.click(selector.button.login);
+        await page.click(config_1.selector.button.login);
         console.log("Login button clicked. Waiting for 2FA page...");
         // Bouton de connexion cliqué. Attente de la page 2FA...
         // Wait for navigation to 2FA page
@@ -269,7 +216,7 @@ async function saveData(page, url, dataDir, user_id) {
         });
         // Check if we navigated to the 2FA page
         // Vérifier si nous avons navigué vers la page 2FA
-        if (page.url() !== urls.twoFA) {
+        if (page.url() !== config_1.urls.twoFA) {
             throw new Error("Failed to navigate to the 2FA page");
             // Échec de la navigation vers la page 2FA
         }
@@ -277,15 +224,15 @@ async function saveData(page, url, dataDir, user_id) {
         // Navigué vers la page 2FA
         // Wait for the 2FA input field to be visible
         // Attendre que le champ d'entrée 2FA soit visible
-        await page.waitForSelector(selector.field.twoFA, {
+        await page.waitForSelector(config_1.selector.field.twoFA, {
             timeout: navigationTimeout,
         });
         // Prompt user to enter 2FA code
         // Demander à l'utilisateur de saisir le code 2FA
-        const twoFA = await waitForUserInput("Please enter your 2FA code and press Enter: ");
+        const twoFA = await (0, user_action_1.waitForUserInput)("Please enter your 2FA code and press Enter: ");
         // Verify the number of input fields matches the length of the 2FA code
         // Vérifier que le nombre de champs d'entrée correspond à la longueur du code 2FA
-        const inputFields = await page.$$(selector.field.twoFA);
+        const inputFields = await page.$$(config_1.selector.field.twoFA);
         if (inputFields.length !== twoFA.length) {
             throw new Error("The number of 2FA input fields does not match the code length.");
             // Le nombre de champs d'entrée 2FA ne correspond pas à la longueur du code
@@ -302,7 +249,7 @@ async function saveData(page, url, dataDir, user_id) {
         await page.waitForFunction((selector) => {
             const button = document.querySelector(selector);
             return button && !button.disabled && button.offsetParent !== null;
-        }, { timeout: navigationTimeout }, selector.button.next2FA);
+        }, { timeout: navigationTimeout }, config_1.selector.button.next2FA);
         // Wait a short delay before clicking the 2FA button
         // Attendre un court délai avant de cliquer sur le bouton 2FA
         await wait(500);
@@ -311,7 +258,7 @@ async function saveData(page, url, dataDir, user_id) {
         await page.evaluate((selector) => {
             const button = document.querySelector(selector);
             button?.click();
-        }, selector.button.next2FA);
+        }, config_1.selector.button.next2FA);
         console.log("2FA button clicked.");
         // Bouton 2FA cliqué
         // Wait for navigation to profile page
@@ -322,7 +269,7 @@ async function saveData(page, url, dataDir, user_id) {
         });
         // Navigate to the user's profile page
         // Naviguer vers la page de profil de l'utilisateur
-        await page.goto(urls.profile, {
+        await page.goto(config_1.urls.profile, {
             waitUntil: "networkidle2",
             timeout: navigationTimeout,
         });
@@ -335,13 +282,13 @@ async function saveData(page, url, dataDir, user_id) {
             await wait(20000); // Wait 20 seconds before taking a screenshot
             // Take and save a screenshot of the profile page
             // Prendre et sauvegarder une capture d'écran de la page de profil
-            const screenshotPath = path_1.default.join(cfg.data_folder, `${env.user_id}/screenshot.png`);
+            const screenshotPath = path_1.default.join(config_1.cfg.data_folder, `${config_1.env.user_id}/screenshot.png`);
             await page.screenshot({ path: screenshotPath, fullPage: true });
             console.log(`Latest profile screenshot taken and saved to ${screenshotPath}.`);
             // Dernière capture d'écran du profil prise et sauvegardée
             // Save the data to JSON files
             // Sauvegarder les données dans des fichiers JSON
-            await saveData(page, urls.api.users, cfg.data_folder, env.user_id);
+            await saveData(page, config_1.urls.api.users, config_1.cfg.data_folder, config_1.env.user_id);
             console.log("Data saved.");
             // Données sauvegardées
             // Wait for a random time between 1 and 2 hours before the next run
@@ -352,7 +299,7 @@ async function saveData(page, url, dataDir, user_id) {
             await wait(waitTime);
             // Navigate to the user's profile page again
             // Naviguer à nouveau vers la page de profil de l'utilisateur
-            await page.goto(urls.profile, {
+            await page.goto(config_1.urls.profile, {
                 waitUntil: "networkidle2",
                 timeout: navigationTimeout,
             });

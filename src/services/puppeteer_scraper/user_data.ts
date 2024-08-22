@@ -1,24 +1,14 @@
 import puppeteer, { Page } from "puppeteer";
 import { config } from "dotenv";
-import readline from "readline";
+import { cfg, dir, urls, selector, env } from "../../libs/config";
+import { waitForUserInput } from "../../libs/user_action";
 import fs from "fs";
 import path from "path";
+import { checkDir } from "../../libs/check_requirements";
 
 // Load environment variables
 // Charger les variables d'environnement
 config();
-
-// Define configuration variables and data folder path
-// Définir les variables de configuration et le chemin du dossier de données
-const cfg = {
-  vrchat_domain: "https://vrchat.com",
-  browser: {
-    headless: true,
-    width: 1389,
-    height: 1818,
-  },
-  data_folder: "data",
-};
 
 // Types for data
 // Types pour les données
@@ -57,27 +47,7 @@ interface Data {
 
 // Create the data directory if it does not exist
 // Créer le répertoire de données si nécessaire
-const userDir = `${cfg.data_folder}/${process.env.USER_ID}`;
-if (!fs.existsSync(userDir)) {
-  console.log(`Creating directory: ${userDir}`);
-  fs.mkdirSync(userDir, { recursive: true });
-}
-
-// Function to wait for user input
-// Fonction pour attendre l'entrée utilisateur
-function waitForUserInput(query: string): Promise<string> {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  return new Promise((resolve) =>
-    rl.question(query, (answer) => {
-      rl.close();
-      resolve(answer);
-    })
-  );
-}
+checkDir("user");
 
 // Function to wait for a delay
 // Fonction pour attendre un délai
@@ -297,55 +267,17 @@ async function saveData(
 (async () => {
   // Define environment variables
   // Définir les variables d'environnement
-  const env = {
-    user_id: process.env.USER_ID!, // User ID retrieved from environment variables
-    nickname: process.env.NICKNAME!, // Nickname retrieved from environment variables
-    // Determine the password source
-    // Déterminer la source du mot de passe
-    password:
-      process.env.PASSWORD ||
-      (await waitForUserInput(
-        "Password not found in environment. Please enter your password: "
-      )),
-  };
+  const password =
+    process.env.PASSWORD ||
+    (await waitForUserInput(
+      "Password not found in environment. Please enter your password: "
+    ));
 
   // Ensure that env.password is defined before use
   // Assurer que env.password est défini avant utilisation
-  if (!env.password) {
+  if (!password) {
     throw new Error("Password is required but not provided.");
   }
-
-  // Define the URLs and selectors for the login and profile pages
-  // Définir les URLs et les sélecteurs pour les pages de connexion et de profil
-  const urls = {
-    login: `${cfg.vrchat_domain}/home/login`,
-    twoFA: `${cfg.vrchat_domain}/home/emailtwofactorauth`,
-    profile: `${cfg.vrchat_domain}/home/user/${env.user_id}`,
-    api: {
-      users: `${cfg.vrchat_domain}/api/1/users`,
-    },
-  };
-
-  // Define the URLs and selectors for the login and profile pages
-  // Définir les URLs et les sélecteurs pour les pages de connexion et de profil
-  const selector = {
-    field: {
-      // Champ pour le nom d'utilisateur ou l'email - Field for username or email
-      username: "#username_email",
-      // Champ pour le mot de passe - Password field
-      password: "#password",
-      // Champ pour le code d'authentification à deux facteurs (2FA) - Field for two-factor authentication code (2FA)
-      twoFA: 'input[name="code"]',
-    },
-    button: {
-      // Bouton pour accepter la politique de confidentialité - Button to accept the privacy policy
-      privacy: "#onetrust-accept-btn-handler",
-      // Bouton pour se connecter - Login button
-      login: 'button[aria-label="Login"]',
-      // Bouton pour valider le code 2FA - Button to validate code 2FA
-      next2FA: 'button[type="submit"]',
-    },
-  };
 
   // Launch Puppeteer browser instance
   // Lancer l'instance de navigateur Puppeteer
@@ -394,7 +326,7 @@ async function saveData(
     console.log("Logging in...");
     // Connexion...
     await page.type(selector.field.username, env.nickname, { delay: 100 });
-    await page.type(selector.field.password, env.password, { delay: 100 });
+    await page.type(selector.field.password, password, { delay: 100 });
 
     // Click the login button
     // Cliquer sur le bouton de connexion

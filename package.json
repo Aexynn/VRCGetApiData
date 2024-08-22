@@ -7,11 +7,17 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "ts:build": "tsc",
     "ts:clean": "tsc --build --clean",
+    "ts:cb": "npm run ts:clean && npm run ts:build",
+    "//": "SRC commands for development",
+    "scrape:auth": "ts-node src/services/puppeteer_scraper/auth_data.ts",
     "scrape:user": "ts-node src/services/puppeteer_scraper/user_data.ts",
     "web:api": "ts-node src/services/express_web/server.ts",
+    "//": "DIST commands for production",
+    "dist/scrape:auth": "node dist/services/puppeteer_scraper/auth_data.js",
     "dist/scrape:user": "node dist/services/puppeteer_scraper/user_data.js",
     "dist/web:api": "node dist/services/express_web/server.js",
-    "prestart": "npm run ts:clean && npm run ts:build",
+    "//": "Run commands",
+    "prestart": "npm run ts:cb",
     "start": "concurrently -i -p \"[{name}] {time}-{pid}\" -n \"SCRP,HTTP\" -c \"bgRed.bold,bgBlue.bold\" \"npm run dist/scrape:user\" \"npm run dist/web:api\" --default-input-target"
   },
   "repository": {

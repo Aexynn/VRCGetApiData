@@ -8,6 +8,7 @@ node_modules/
 .env
 
 # Projects folder
-dist/
-.old/
-data/
+/dist/
+/.old/
+/data/
+*.js
