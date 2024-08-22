@@ -17,6 +17,11 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Debug changed files
+        run: |
+          git fetch origin main
+          git diff --name-only origin/main HEAD
+
       - name: Check for changes in src/
         id: check_changes
         run: |
@@ -29,6 +34,9 @@ jobs:
             echo "No changes detected in src/ directory."
             echo "CHANGES=false" >> $GITHUB_ENV
           fi
+
+      - name: Debug CHANGES variable
+        run: echo "CHANGES is $CHANGES"
 
       - name: Get previous commit SHA
         if: env.CHANGES == 'true'
