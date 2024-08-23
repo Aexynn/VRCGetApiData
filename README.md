@@ -51,17 +51,31 @@ And then put it all on a lightweight web server so I could have an API with a ca
 
 ## :sparkles: Features
 
-:heavy_check_mark: Login to VRChat with Puppeteer <br>
-:heavy_check_mark: Get the data with Puppeteer
+:heavy_check_mark: **Login to VRChat with Puppeteer**  
+Automate the VRChat login process using Puppeteer, including management of 2FA authentication. The process involves encoding the credentials in Base64, interacting with the login form and saving the authentication details so that the API can be used later via fetches without the need for continuous reconnection.
+
+:heavy_check_mark: **Retrieve User Data via API**  
+Exposes an API endpoint for retrieving user data from scrape-generated JSON files & local backup of retrieved JSON by making requests to the official API. JSON data is read and returned as a response, with appropriate error handling for file access and parsing. All this is done with the aim of providing simpler access to data without exposing any compromising elements for your account or application.
+
+:heavy_check_mark: **Prompt for User Input**  
+Utility function for prompting users to enter data via the command line. This function waits for user input and returns it as a string, which is useful for interactive scripts requiring identification or other information. As in the case of not wanting to put your password in the .env but entering it manually each time auth is initiated.
+
+:heavy_check_mark: **Save Authentication Details**  
+Store encrypted login credentials, cookies and local storage data in JSON files for later use (for requests to the official API). The process includes creating the necessary directories and managing various authentication data, as well as modifying and creating JSONs for the custom API endpoint. Of course, all data remains on your own system.
+
+:heavy_check_mark: **Handle Errors Gracefully**  
+Implement comprehensive error handling for file reading and JSON parsing. Proper responses and logging are in place to manage scenarios where files are missing or data is malformed.
 
 ## :rocket: Technologies
 
+- [TypeScript](https://www.typescriptlang.org)
+- [JavaScript](https://developer.mozilla.org/docs/Web/JavaScript) (After compilation)
 - [Concurrently](https://www.npmjs.com/package/concurrently)
 - [Express](https://expressjs.com)
 - [Puppeteer](https://pptr.dev)
 - [NodeJS](https://nodejs.org) (ReadLine, FS, Path)
-- [TypeScript](https://www.typescriptlang.org)
-- [JavaScript](https://developer.mozilla.org/docs/Web/JavaScript) (After compilation)
+- [Axios](https://axios-http.com)
+- [js-base64](https://www.npmjs.com/package/js-base64)
 
 ## :white_check_mark: Requirements
 
