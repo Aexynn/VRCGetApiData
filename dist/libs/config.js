@@ -89,6 +89,10 @@ exports.urls = {
     profile: `${exports.cfg.vrchat_domain}/home/user/${process.env.USER_ID}`,
     api: {
         users: `${exports.cfg.vrchat_domain}/api/1/users/${process.env.USER_ID}`,
+        groups: {
+            list: `${exports.cfg.vrchat_domain}/api/1/users/${process.env.USER_ID}/groups`,
+            represented: `${exports.cfg.vrchat_domain}/api/1/users/${process.env.USER_ID}/groups/represented`,
+        },
     },
 };
 /**
