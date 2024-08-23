@@ -73,18 +73,17 @@ jobs:
       - name: Temporarily modify .gitignore
         if: env.CHANGES == 'true'
         run: |
-          # Supprimer les entrées .gitignore pour /dist et *.js
-          sed -i '/dist\/libs/d' .gitignore || true
-          sed -i '/dist\/services/d' .gitignore || true
+          # Supprimer temporairement les exclusions spécifiques pour le commit
+          sed -i '/dist\//d' .gitignore || true
           sed -i '/\.js/d' .gitignore || true
+
+      - name: Add all files in dist/ (including ignored)
+        if: env.CHANGES == 'true'
+        run: git add -f dist/
 
       - name: Check files staged for commit
         if: env.CHANGES == 'true'
         run: git diff --cached --name-only
-
-      - name: Add all files in dist/
-        if: env.CHANGES == 'true'
-        run: git add dist/
 
       - name: Configure Git
         if: env.CHANGES == 'true'
