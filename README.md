@@ -51,7 +51,7 @@ And then put it all on a lightweight web server so I could have an API with a ca
 
 ## :sparkles: Features
 
-:heavy_check_mark: Login to VRChat with Puppeteer
+:heavy_check_mark: Login to VRChat with Puppeteer <br>
 :heavy_check_mark: Get the data with Puppeteer
 
 ## :rocket: Technologies
@@ -61,6 +61,7 @@ And then put it all on a lightweight web server so I could have an API with a ca
 - [Puppeteer](https://pptr.dev)
 - [NodeJS](https://nodejs.org) (ReadLine, FS, Path)
 - [TypeScript](https://www.typescriptlang.org)
+- [JavaScript](https://developer.mozilla.org/docs/Web/JavaScript) (After compilation)
 
 ## :white_check_mark: Requirements
 
