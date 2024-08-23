@@ -3,6 +3,13 @@ import { config } from "dotenv";
 import { cfg, dir, urls, selector, env } from "../../libs/config";
 import { waitForUserInput } from "../../libs/user_action";
 import { checkDir } from "../../libs/check_requirements";
+import {
+  checkIfMidnight,
+  formatTime,
+  wait,
+  waitForLoadingToDisappear,
+  waitTime,
+} from "../../libs/times_wait";
 import fs from "fs";
 import path from "path";
 
@@ -49,40 +56,16 @@ interface Data {
 // Créer le répertoire de données si nécessaire
 checkDir("user");
 
-// Function to wait for a delay
-// Fonction pour attendre un délai
-function wait(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-// Function to format milliseconds into a readable time string
-// Fonction pour formater les millisecondes en une chaîne de temps lisible
-function formatTime(ms: number): string {
-  const seconds = Math.floor(ms / 1000) % 60;
-  const minutes = Math.floor(ms / (1000 * 60)) % 60;
-  const hours = Math.floor(ms / (1000 * 60 * 60));
-
-  return `${hours}h ${minutes}m ${seconds}s`;
-}
-
-// Function to wait for the loading div to disappear
-// Fonction pour attendre que le div de chargement disparaisse
-async function waitForLoadingToDisappear(page: Page): Promise<void> {
-  try {
-    // Wait until the loading div is hidden
-    // Attendre que le div de chargement soit caché
-    await page.waitForSelector("#loading", { hidden: true });
-    console.log("Loading div disappeared.");
-  } catch (error) {
-    console.error(
-      "Error while waiting for the loading div to disappear:",
-      error
-    );
-  }
-}
-
-// Function to fetch JSON data from a URL
-// Fonction pour récupérer des données JSON depuis une URL
+/**
+ * Function to fetch JSON data from a URL.
+ *
+ * @param page - The Puppeteer Page object.
+ * @param url - The URL to fetch data from.
+ * @returns The JSON data fetched from the URL.
+ *
+ * // EN: Fetches JSON data from a specified URL by navigating the page and extracting the content.
+ * // FR: Récupère les données JSON depuis une URL spécifiée en naviguant sur la page et en extrayant le contenu.
+ */
 async function fetchJsonFromUrl(page: Page, url: string): Promise<any> {
   try {
     // Navigate to the URL and wait until network is idle
@@ -102,21 +85,19 @@ async function fetchJsonFromUrl(page: Page, url: string): Promise<any> {
   }
 }
 
-// Function to check if it is midnight
-// Fonction pour vérifier s'il est minuit
-async function checkIfMidnight(): Promise<boolean> {
-  const currentTime = new Date();
-  // Check if current time is midnight (00:00:00)
-  // Vérifier si l'heure actuelle est minuit (00:00:00)
-  return (
-    currentTime.getHours() === 0 &&
-    currentTime.getMinutes() === 0 &&
-    currentTime.getSeconds() === 0
-  );
-}
-
-// Function to save data
-// Fonction pour sauvegarder les données
+/**
+ * Function to save data.
+ *
+ * @param page - The Puppeteer Page object.
+ * @param url - The base URL for API requests.
+ * @param dataDir - The directory to save the data.
+ * @param user_id - The user ID for API requests.
+ *
+ * @returns A promise that resolves when the data is saved.
+ *
+ * // EN: Scrapes data from the page, fetches additional data from APIs, and saves all data to JSON files.
+ * // FR: Extrait les données de la page, récupère des données supplémentaires depuis les API, et sauvegarde toutes les données dans des fichiers JSON.
+ */
 async function saveData(
   page: Page,
   url: string,
@@ -231,15 +212,15 @@ async function saveData(
     // Save the fetched data to JSON files
     // Sauvegarder les données récupérées dans des fichiers JSON
     fs.writeFileSync(
-      path.join(dataDir, `user_data.json`),
+      path.join(dataDir, `old_method/user_data.json`),
       JSON.stringify(data.user, null, 2)
     );
     fs.writeFileSync(
-      path.join(dataDir, `worlds_data.json`),
+      path.join(dataDir, `old_method/worlds_data.json`),
       JSON.stringify(data.worlds, null, 2)
     );
     fs.writeFileSync(
-      path.join(dataDir, `groupsRepresented_data.json`),
+      path.join(dataDir, `old_method/groupsRepresented_data.json`),
       JSON.stringify(data.groups.represented, null, 2)
     );
 
@@ -250,7 +231,7 @@ async function saveData(
       const apiGroupsUrl = `${apiUserUrl}/groups`;
       data.groups.list = await fetchJsonFromUrl(page, apiGroupsUrl);
       fs.writeFileSync(
-        path.join(dataDir, `groupsList_data.json`),
+        path.join(dataDir, `old_method/groupsList_data.json`),
         JSON.stringify(data.groups.list, null, 2)
       );
     } else {
@@ -443,9 +424,6 @@ async function saveData(
 
       // Wait for a random time between 1 and 2 hours before the next run
       // Attendre un temps aléatoire entre 1 et 2 heures avant la prochaine exécution
-      const waitTime =
-        Math.floor(Math.random() * (2 * 60 * 60 * 1000 - 1 * 60 * 60 * 1000)) +
-        1 * 60 * 60 * 1000;
       console.log(`Waiting for ${formatTime(waitTime)} before the next run...`);
       await wait(waitTime);
 
