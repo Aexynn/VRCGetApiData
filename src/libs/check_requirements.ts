@@ -1,4 +1,4 @@
-import { dir } from "./config"; // fake edit
+import { dir } from "./config";
 import { isErrorWithMessage } from "./errors";
 import fs from "fs";
 import path from "path";

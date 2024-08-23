@@ -409,7 +409,7 @@ async function saveData(
 
       // Take and save a screenshot of the profile page
       // Prendre et sauvegarder une capture d'écran de la page de profil
-      const screenshotPath = path.join(dir.user, "screenshot.png");
+      const screenshotPath = path.join(dir.user, "old/screenshot.png");
       await page.screenshot({ path: screenshotPath, fullPage: true });
       console.log(
         `Latest profile screenshot taken and saved to ${screenshotPath}.`

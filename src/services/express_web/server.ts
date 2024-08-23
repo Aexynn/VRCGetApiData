@@ -177,8 +177,8 @@ app.get("/api/users/groups/represented", (req: Request, res: Response) => {
  * // EN: Handles GET requests to retrieve a screenshot image from 'screenshot.png'.
  * // FR: Gère les requêtes GET pour récupérer une image de capture d'écran depuis 'screenshot.png'.
  */
-app.get("/api/users/screenshot", (req: Request, res: Response) => {
-  fs.readFile(path.join(dir.user, "screenshot.png"), (err, data) => {
+app.get("/api/users/old/screenshot", (req: Request, res: Response) => {
+  fs.readFile(path.join(dir.user, "old/screenshot.png"), (err, data) => {
     if (err) {
       console.error("Error reading screenshot file:", err);
       return res.status(500).json(cfg.web_api.errorServer);
