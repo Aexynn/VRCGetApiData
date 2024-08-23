@@ -93,7 +93,7 @@ app.get("/api/users", (req: Request, res: Response) => {
  */
 app.get("/api/old/users/worlds", (req: Request, res: Response) => {
   fs.readFile(
-    path.join(dir.user, "old/worlds_data.json"),
+    path.join(dir.user, "old_method/worlds_data.json"),
     "utf8",
     (err, data) => {
       if (err) {
@@ -123,7 +123,7 @@ app.get("/api/old/users/worlds", (req: Request, res: Response) => {
  */
 app.get("/api/old/users/groups", (req: Request, res: Response) => {
   fs.readFile(
-    path.join(dir.user, "old/groupsList_data.json"),
+    path.join(dir.user, "old_method/groupsList_data.json"),
     "utf8",
     (err, data) => {
       if (err) {
@@ -153,7 +153,7 @@ app.get("/api/old/users/groups", (req: Request, res: Response) => {
  */
 app.get("/api/old/users/groups/represented", (req: Request, res: Response) => {
   fs.readFile(
-    path.join(dir.user, "old/groupsRepresented_data.json"),
+    path.join(dir.user, "old_method/groupsRepresented_data.json"),
     "utf8",
     (err, data) => {
       if (err) {
@@ -182,7 +182,7 @@ app.get("/api/old/users/groups/represented", (req: Request, res: Response) => {
  * // FR: Gère les requêtes GET pour récupérer une image de capture d'écran depuis 'screenshot.png'.
  */
 app.get("/api/old/users/screenshot", (req: Request, res: Response) => {
-  fs.readFile(path.join(dir.user, "old/screenshot.png"), (err, data) => {
+  fs.readFile(path.join(dir.user, "old_method/screenshot.png"), (err, data) => {
     if (err) {
       console.error("Error reading screenshot file:", err);
       return res.status(500).json(cfg.web_api.errorServer);
