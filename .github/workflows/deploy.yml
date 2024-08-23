@@ -66,6 +66,26 @@ jobs:
         if: env.CHANGES == 'true'
         run: npm run ts:build
 
+      - name: List files in dist/
+        if: env.CHANGES == 'true'
+        run: ls -R dist/
+
+      - name: Temporarily modify .gitignore
+        if: env.CHANGES == 'true'
+        run: |
+          # Supprimer les entrées .gitignore pour /dist et *.js
+          sed -i '/dist\/libs/d' .gitignore || true
+          sed -i '/dist\/services/d' .gitignore || true
+          sed -i '/\.js/d' .gitignore || true
+
+      - name: Check files staged for commit
+        if: env.CHANGES == 'true'
+        run: git diff --cached --name-only
+
+      - name: Add all files in dist/
+        if: env.CHANGES == 'true'
+        run: git add dist/
+
       - name: Configure Git
         if: env.CHANGES == 'true'
         run: |
@@ -73,15 +93,9 @@ jobs:
           git config user.email "178714696+Kyu2Bot@users.noreply.github.com"
           git config --list
 
-      - name: Temporarily modify .gitignore
-        if: env.CHANGES == 'true'
-        run: |
-          sed -i '/dist/d' .gitignore
-
       - name: Commit and push dist folder
         if: env.CHANGES == 'true'
         run: |
-          git add dist
           git commit -m "[Bot] JS compiled for the new version. See details: ${LATEST_SHA}" -m "Co-authored-by: Kyuddle <169302941+Kyuddle@users.noreply.github.com>"
           git push
         env:
@@ -89,5 +103,11 @@ jobs:
 
       - name: Restore .gitignore
         if: env.CHANGES == 'true'
+        run: git checkout .gitignore
+
+      - name: Clean up workspace
+        if: env.CHANGES == 'true'
         run: |
-          git checkout .gitignore
+          rm -rf dist/
+          rm -rf node_modules/
+          npm cache clean --force

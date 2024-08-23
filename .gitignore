@@ -4,11 +4,15 @@ node_modules/
 # Optional npm cache directory
 .npm
 
-# Env
+# Environment files
 .env
 
-# Projects folder
+# Ignore everything in dist/
 /dist/
+
+# Ignore specific file types
+*.js
+
+# Other directories
 /.old/
 /data/
-*.js
