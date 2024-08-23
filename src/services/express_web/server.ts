@@ -91,21 +91,25 @@ app.get("/api/users", (req: Request, res: Response) => {
  * // EN: Handles GET requests to retrieve worlds data from 'worlds_data.json'.
  * // FR: Gère les requêtes GET pour récupérer les données des mondes depuis 'worlds_data.json'.
  */
-app.get("/api/users/worlds", (req: Request, res: Response) => {
-  fs.readFile(path.join(dir.user, "worlds_data.json"), "utf8", (err, data) => {
-    if (err) {
-      console.error("Error reading JSON file:", err);
-      return res.status(500).json(cfg.web_api.errorServer);
+app.get("/api/old/users/worlds", (req: Request, res: Response) => {
+  fs.readFile(
+    path.join(dir.user, "old/worlds_data.json"),
+    "utf8",
+    (err, data) => {
+      if (err) {
+        console.error("Error reading JSON file:", err);
+        return res.status(500).json(cfg.web_api.errorServer);
+      }
+      try {
+        res.set("Content-Type", "application/json");
+        const jsonData = JSON.parse(data);
+        res.json(jsonData);
+      } catch (parseError) {
+        console.error("Error parsing JSON file:", parseError);
+        res.status(500).json(cfg.web_api.errorServer);
+      }
     }
-    try {
-      res.set("Content-Type", "application/json");
-      const jsonData = JSON.parse(data);
-      res.json(jsonData);
-    } catch (parseError) {
-      console.error("Error parsing JSON file:", parseError);
-      res.status(500).json(cfg.web_api.errorServer);
-    }
-  });
+  );
 });
 
 /**
@@ -117,9 +121,9 @@ app.get("/api/users/worlds", (req: Request, res: Response) => {
  * // EN: Handles GET requests to retrieve the list of groups from 'groupsList_data.json'.
  * // FR: Gère les requêtes GET pour récupérer la liste des groupes depuis 'groupsList_data.json'.
  */
-app.get("/api/users/groups", (req: Request, res: Response) => {
+app.get("/api/old/users/groups", (req: Request, res: Response) => {
   fs.readFile(
-    path.join(dir.user, "groupsList_data.json"),
+    path.join(dir.user, "old/groupsList_data.json"),
     "utf8",
     (err, data) => {
       if (err) {
@@ -147,9 +151,9 @@ app.get("/api/users/groups", (req: Request, res: Response) => {
  * // EN: Handles GET requests to retrieve data of represented groups from 'groupsRepresented_data.json'.
  * // FR: Gère les requêtes GET pour récupérer les données des groupes représentés depuis 'groupsRepresented_data.json'.
  */
-app.get("/api/users/groups/represented", (req: Request, res: Response) => {
+app.get("/api/old/users/groups/represented", (req: Request, res: Response) => {
   fs.readFile(
-    path.join(dir.user, "groupsRepresented_data.json"),
+    path.join(dir.user, "old/groupsRepresented_data.json"),
     "utf8",
     (err, data) => {
       if (err) {
@@ -177,7 +181,7 @@ app.get("/api/users/groups/represented", (req: Request, res: Response) => {
  * // EN: Handles GET requests to retrieve a screenshot image from 'screenshot.png'.
  * // FR: Gère les requêtes GET pour récupérer une image de capture d'écran depuis 'screenshot.png'.
  */
-app.get("/api/users/old/screenshot", (req: Request, res: Response) => {
+app.get("/api/old/users/screenshot", (req: Request, res: Response) => {
   fs.readFile(path.join(dir.user, "old/screenshot.png"), (err, data) => {
     if (err) {
       console.error("Error reading screenshot file:", err);
