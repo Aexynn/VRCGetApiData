@@ -1,4 +1,5 @@
 name: Build and Deploy Compilation to Repository
+
 on:
   push:
     branches:
@@ -8,6 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -17,17 +19,29 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Debug changed files
+      - name: Fetch changes from main
         run: |
           git fetch origin main
-          git diff --name-only origin/main HEAD
+
+      - name: Get previous commit SHA
+        id: get_previous_commit
+        run: |
+          PREV_COMMIT_SHA=$(git rev-parse HEAD^1)
+          echo "PREV_COMMIT_SHA=$PREV_COMMIT_SHA" >> $GITHUB_ENV
 
       - name: Check for changes in src/
         id: check_changes
         run: |
-          git fetch origin main
-          # Check if there are changes in src/ or any of its subdirectories
-          if git diff --name-only origin/main HEAD | grep -E '^src/'; then
+          # Get the SHA of the previous commit from environment
+          PREV_COMMIT_SHA=${{ env.PREV_COMMIT_SHA }}
+
+          # List all changed files between the previous commit and the current one
+          CHANGED_FILES=$(git diff --name-only $PREV_COMMIT_SHA HEAD)
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          # Check if there are changes in the src/ directory
+          if echo "$CHANGED_FILES" | grep -q '^src/'; then
             echo "Changes detected in src/ directory."
             echo "CHANGES=true" >> $GITHUB_ENV
           else
@@ -37,14 +51,6 @@ jobs:
 
       - name: Debug CHANGES variable
         run: echo "CHANGES is $CHANGES"
-
-      - name: Get previous commit SHA
-        if: env.CHANGES == 'true'
-        id: get_previous_commit
-        run: |
-          # Get the previous commit SHA
-          PREV_COMMIT_SHA=$(git rev-parse HEAD^1)
-          echo "PREV_COMMIT_SHA=$PREV_COMMIT_SHA" >> $GITHUB_ENV
 
       - name: Install dependencies
         if: env.CHANGES == 'true'
@@ -63,7 +69,7 @@ jobs:
         run: |
           git config user.name "Kyu2Bot"
           git config user.email "178714696+Kyu2Bot@users.noreply.github.com"
-          git config --list # Vérifiez la configuration Git pour confirmer les valeurs
+          git config --list
 
       - name: Temporarily modify .gitignore
         if: env.CHANGES == 'true'
@@ -73,12 +79,8 @@ jobs:
       - name: Commit and push dist folder
         if: env.CHANGES == 'true'
         run: |
-          # Add dist folder
           git add dist
-          # Commit changes with co-author and description
-          COMMIT_MESSAGE="[Bot] JS compiled for the new version. See details: ${PREV_COMMIT_SHA}"
-          git commit -m "$COMMIT_MESSAGE" -m "Co-authored-by: Kyuddle <169302941+Kyuddle@users.noreply.github.com>"
-          # Push changes
+          git commit -m "[Bot] JS compiled for the new version. See details: ${PREV_COMMIT_SHA}" -m "Co-authored-by: Kyuddle <169302941+Kyuddle@users.noreply.github.com>"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -86,5 +88,4 @@ jobs:
       - name: Restore .gitignore
         if: env.CHANGES == 'true'
         run: |
-          # Restore the original .gitignore
           git checkout .gitignore

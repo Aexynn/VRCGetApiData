@@ -1,6 +1,6 @@
 {
   "name": "vrc-scraper-data",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A Scraper & API Website for VRChat to retrieve information directly from the site & the API to obtain information on a user (friend) such as groups joined, group represented, profile, rank, etc...",
   "main": "main.js",
   "scripts": {
