@@ -1,4 +1,4 @@
-import { config as dotEnvConfig } from "dotenv"; // "Fake Edit for Test Workflows"
+import { config as dotEnvConfig } from "dotenv";
 
 /**
  * Load environment variables from a .env file.

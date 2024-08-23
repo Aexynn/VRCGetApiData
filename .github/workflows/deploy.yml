@@ -19,35 +19,37 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Fetch changes from main
+      - name: Get the latest commit SHA
+        id: get_commit_sha
         run: |
-          git fetch origin main
+          LATEST_SHA=$(curl -s https://api.github.com/repos/${{ github.repository }}/commits/main | jq -r .sha)
+          echo "LATEST_SHA=$LATEST_SHA" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get previous commit SHA
-        id: get_previous_commit
+      - name: Get the previous commit SHA
+        id: get_previous_commit_sha
         run: |
-          PREV_COMMIT_SHA=$(git rev-parse HEAD^1)
-          echo "PREV_COMMIT_SHA=$PREV_COMMIT_SHA" >> $GITHUB_ENV
+          PREV_SHA=$(curl -s https://api.github.com/repos/${{ github.repository }}/commits?per_page=2 | jq -r '.[1].sha')
+          echo "PREV_SHA=$PREV_SHA" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check for changes in src/
         id: check_changes
         run: |
-          # Get the SHA of the previous commit from environment
-          PREV_COMMIT_SHA=${{ env.PREV_COMMIT_SHA }}
+          # Utilise les SHA stockés dans les variables d'environnement
+          CHANGES=$(curl -s https://api.github.com/repos/${{ github.repository }}/compare/${{ env.PREV_SHA }}...${{ env.LATEST_SHA }} | jq -r '.files[] | select(.filename | startswith("src/")) | .filename')
 
-          # List all changed files between the previous commit and the current one
-          CHANGED_FILES=$(git diff --name-only $PREV_COMMIT_SHA HEAD)
-          echo "Changed files:"
-          echo "$CHANGED_FILES"
-
-          # Check if there are changes in the src/ directory
-          if echo "$CHANGED_FILES" | grep -q '^src/'; then
+          if [ -n "$CHANGES" ]; then
             echo "Changes detected in src/ directory."
             echo "CHANGES=true" >> $GITHUB_ENV
           else
             echo "No changes detected in src/ directory."
             echo "CHANGES=false" >> $GITHUB_ENV
           fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Debug CHANGES variable
         run: echo "CHANGES is $CHANGES"
@@ -80,7 +82,7 @@ jobs:
         if: env.CHANGES == 'true'
         run: |
           git add dist
-          git commit -m "[Bot] JS compiled for the new version. See details: ${PREV_COMMIT_SHA}" -m "Co-authored-by: Kyuddle <169302941+Kyuddle@users.noreply.github.com>"
+          git commit -m "[Bot] JS compiled for the new version. See details: ${LATEST_SHA}" -m "Co-authored-by: Kyuddle <169302941+Kyuddle@users.noreply.github.com>"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
