@@ -87,6 +87,7 @@ Also create an .env file with the data entered in the template below:
 NICKNAME = YourUsernameUsedInTheCreation;
 PASSWORD = IfYouNeedToNotRefillAllTimeIsOptional;
 USER_ID = usr_YOURIDVRCHAT;
+USER_AGENT=EXAMPLE (https://github.com/Kyuddle/VRCScraperUserData)
 PORT = IfYouWantToChangeTheDefaultWebAPIPort;
 ```
 
