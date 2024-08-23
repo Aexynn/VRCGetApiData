@@ -95,6 +95,10 @@ export const urls = {
   profile: `${cfg.vrchat_domain}/home/user/${process.env.USER_ID}`,
   api: {
     users: `${cfg.vrchat_domain}/api/1/users/${process.env.USER_ID}`,
+    groups: {
+      list: `${cfg.vrchat_domain}/api/1/users/${process.env.USER_ID}/groups`,
+      represented: `${cfg.vrchat_domain}/api/1/users/${process.env.USER_ID}/groups/represented`,
+    },
   },
 } as const;
 
@@ -135,8 +139,14 @@ type BrowserConfig = {
   height: number;
 };
 
+type ApiGroupsUrls = {
+  list: string;
+  representend: string;
+};
+
 type ApiUrls = {
   users: string;
+  groups: ApiGroupsUrls;
 };
 
 type WebApi = {

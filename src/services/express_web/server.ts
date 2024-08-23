@@ -88,10 +88,10 @@ app.get("/api/users", (req: Request, res: Response) => {
  * @param req The request object.
  * @param res The response object.
  *
- * // EN: Handles GET requests to retrieve worlds data from 'worlds_data.json'.
- * // FR: Gère les requêtes GET pour récupérer les données des mondes depuis 'worlds_data.json'.
+ * // EN: Handles GET requests to retrieve worlds data from 'old_method/worlds_data.json'.
+ * // FR: Gère les requêtes GET pour récupérer les données des mondes depuis 'old_method/worlds_data.json'.
  */
-app.get("/api/old/users/worlds", (req: Request, res: Response) => {
+/*app.get("/api/old/users/worlds", (req: Request, res: Response) => {
   fs.readFile(
     path.join(dir.user, "old_method/worlds_data.json"),
     "utf8",
@@ -110,7 +110,7 @@ app.get("/api/old/users/worlds", (req: Request, res: Response) => {
       }
     }
   );
-});
+});*/
 
 /**
  * Route to get groups list.
@@ -118,28 +118,50 @@ app.get("/api/old/users/worlds", (req: Request, res: Response) => {
  * @param req The request object.
  * @param res The response object.
  *
- * // EN: Handles GET requests to retrieve the list of groups from 'groupsList_data.json'.
- * // FR: Gère les requêtes GET pour récupérer la liste des groupes depuis 'groupsList_data.json'.
+ * // EN: Handles GET requests to retrieve the list of groups from 'user_groups_list.json' or 'old_method/groupsList_data.json'.
+ * // FR: Gère les requêtes GET pour récupérer la liste des groupes depuis 'user_groups_list.json' ou 'old_method/groupsList_data.json'.
  */
-app.get("/api/old/users/groups", (req: Request, res: Response) => {
-  fs.readFile(
-    path.join(dir.user, "old_method/groupsList_data.json"),
-    "utf8",
-    (err, data) => {
-      if (err) {
-        console.error("Error reading JSON file:", err);
-        return res.status(500).json(cfg.web_api.errorServer);
-      }
-      try {
-        res.set("Content-Type", "application/json");
-        const jsonData = JSON.parse(data);
-        res.json(jsonData);
-      } catch (parseError) {
-        console.error("Error parsing JSON file:", parseError);
-        res.status(500).json(cfg.web_api.errorServer);
-      }
+app.get("/api/users/groups", (req: Request, res: Response) => {
+  // Define the paths to the JSON files
+  const filePath1 = path.join(dir.user, "user_groups_list.json");
+  const filePath2 = path.join(dir.user, "old_method/groupsList_data.json");
+
+  // Check if the first file exists, otherwise check the second file
+  fs.access(filePath1, fs.constants.F_OK, (err) => {
+    if (!err) {
+      // File exists, read it
+      fs.readFile(filePath1, "utf8", (err, data) => {
+        if (err) {
+          console.error("Error reading JSON file:", err);
+          return res.status(500).json(cfg.web_api.errorServer);
+        }
+        try {
+          res.set("Content-Type", "application/json");
+          const jsonData = JSON.parse(data);
+          res.json(jsonData);
+        } catch (parseError) {
+          console.error("Error parsing JSON file:", parseError);
+          res.status(500).json(cfg.web_api.errorServer);
+        }
+      });
+    } else {
+      // File does not exist, try the second file
+      fs.readFile(filePath2, "utf8", (err, data) => {
+        if (err) {
+          console.error("Error reading JSON file:", err);
+          return res.status(500).json(cfg.web_api.errorServer);
+        }
+        try {
+          res.set("Content-Type", "application/json");
+          const jsonData = JSON.parse(data);
+          res.json(jsonData);
+        } catch (parseError) {
+          console.error("Error parsing JSON file:", parseError);
+          res.status(500).json(cfg.web_api.errorServer);
+        }
+      });
     }
-  );
+  });
 });
 
 /**
@@ -148,48 +170,52 @@ app.get("/api/old/users/groups", (req: Request, res: Response) => {
  * @param req The request object.
  * @param res The response object.
  *
- * // EN: Handles GET requests to retrieve data of represented groups from 'groupsRepresented_data.json'.
- * // FR: Gère les requêtes GET pour récupérer les données des groupes représentés depuis 'groupsRepresented_data.json'.
+ * // EN: Handles GET requests to retrieve data of represented groups from 'user_group_representend.json' or 'old_method/groupsRepresented_data.json'.
+ * // FR: Gère les requêtes GET pour récupérer les données des groupes représentés depuis 'user_group_representend.json' ou 'old_method/groupsRepresented_data.json'.
  */
-app.get("/api/old/users/groups/represented", (req: Request, res: Response) => {
-  fs.readFile(
-    path.join(dir.user, "old_method/groupsRepresented_data.json"),
-    "utf8",
-    (err, data) => {
-      if (err) {
-        console.error("Error reading JSON file:", err);
-        return res.status(500).json(cfg.web_api.errorServer);
-      }
-      try {
-        res.set("Content-Type", "application/json");
-        const jsonData = JSON.parse(data);
-        res.json(jsonData);
-      } catch (parseError) {
-        console.error("Error parsing JSON file:", parseError);
-        res.status(500).json(cfg.web_api.errorServer);
-      }
-    }
+app.get("/api/users/groups/represented", (req: Request, res: Response) => {
+  // Define the paths to the JSON files
+  const filePath1 = path.join(dir.user, "user_group_representend.json");
+  const filePath2 = path.join(
+    dir.user,
+    "old_method/groupsRepresented_data.json"
   );
-});
 
-/**
- * Route to get screenshot.
- *
- * @param req The request object.
- * @param res The response object.
- *
- * // EN: Handles GET requests to retrieve a screenshot image from 'screenshot.png'.
- * // FR: Gère les requêtes GET pour récupérer une image de capture d'écran depuis 'screenshot.png'.
- */
-app.get("/api/old/users/screenshot", (req: Request, res: Response) => {
-  fs.readFile(path.join(dir.user, "old_method/screenshot.png"), (err, data) => {
-    if (err) {
-      console.error("Error reading screenshot file:", err);
-      return res.status(500).json(cfg.web_api.errorServer);
+  // Check if the first file exists, otherwise check the second file
+  fs.access(filePath1, fs.constants.F_OK, (err) => {
+    if (!err) {
+      // File exists, read it
+      fs.readFile(filePath1, "utf8", (err, data) => {
+        if (err) {
+          console.error("Error reading JSON file:", err);
+          return res.status(500).json(cfg.web_api.errorServer);
+        }
+        try {
+          res.set("Content-Type", "application/json");
+          const jsonData = JSON.parse(data);
+          res.json(jsonData);
+        } catch (parseError) {
+          console.error("Error parsing JSON file:", parseError);
+          res.status(500).json(cfg.web_api.errorServer);
+        }
+      });
+    } else {
+      // File does not exist, try the second file
+      fs.readFile(filePath2, "utf8", (err, data) => {
+        if (err) {
+          console.error("Error reading JSON file:", err);
+          return res.status(500).json(cfg.web_api.errorServer);
+        }
+        try {
+          res.set("Content-Type", "application/json");
+          const jsonData = JSON.parse(data);
+          res.json(jsonData);
+        } catch (parseError) {
+          console.error("Error parsing JSON file:", parseError);
+          res.status(500).json(cfg.web_api.errorServer);
+        }
+      });
     }
-
-    res.set("Content-Type", "image/png");
-    res.send(data);
   });
 });
 
