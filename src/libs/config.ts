@@ -29,10 +29,11 @@ export const cfg = {
   },
   data_folder: "data",
   web_api: {
-    redirect404: "https://github.com/Kyuddle/VRCScraperUserData",
+    redirect404: "https://github.com/Kyuddle/VRCGetApiData",
     errorServer:
       '{"error": "An internal server error has occurred. Please try again later."}',
   },
+  activate_group_function: true,
 } as const;
 
 /**
@@ -77,6 +78,7 @@ if (!env.user_id || !env.nickname || !env.userAgent) {
  */
 export const dir = {
   user: `${cfg.data_folder}/users/${process.env.USER_ID}`,
+  groups: `${cfg.data_folder}/groups/${process.env.GROUP_ID}`,
   auth: `${cfg.data_folder}/auth`,
 } as const;
 
@@ -99,8 +101,28 @@ export const urls = {
       list: `${cfg.vrchat_domain}/api/1/users/${process.env.USER_ID}/groups`,
       represented: `${cfg.vrchat_domain}/api/1/users/${process.env.USER_ID}/groups/represented`,
     },
+    group_data: {
+      infos: `${cfg.vrchat_domain}/api/1/groups/${process.env.GROUP_ID}`,
+      members: `${cfg.vrchat_domain}/api/1/groups/${process.env.GROUP_ID}/members`,
+      bans: `${cfg.vrchat_domain}/api/1/groups/${process.env.GROUP_ID}/bans`,
+    },
   },
 } as const;
+
+/**
+ * Throws an error if critical environment variables (GROUP_ID) are not set.
+ *
+ * @remarks
+ * Ensures that all required environment variables are defined; otherwise, it throws an error.
+ *
+ * // EN: Checks and throws an error if any critical environment variables are missing.
+ * // FR: Vérifie et lance une erreur si des variables d'environnement critiques sont manquantes.
+ */
+if (!process.env.GROUP_ID && cfg.activate_group_function) {
+  throw new Error(
+    "GROUP_ID is not set. Please check your environment variables (.env) / If you don't need just desactivate in CFG const."
+  );
+}
 
 /**
  * CSS selectors for form fields and buttons on the login and profile pages.
@@ -137,6 +159,12 @@ type BrowserConfig = {
   headless: boolean;
   width: number;
   height: number;
+};
+
+type Dir = {
+  user: string;
+  groups: string;
+  auth: string;
 };
 
 type ApiGroupsUrls = {
@@ -179,6 +207,7 @@ type Config = {
   browser: BrowserConfig;
   data_folder: string;
   web_api: WebApi;
+  activate_group_function: boolean;
 };
 
 type Env = {
@@ -188,7 +217,7 @@ type Env = {
   userAgent: string;
 };
 
-export type { Config, BrowserConfig, ApiUrls, Urls, Selector, Env };
+export type { Config, BrowserConfig, ApiUrls, Urls, Selector, Env, Dir };
 
 // Optionally, you can enforce typing on the configuration object
 // Optionnellement, vous pouvez imposer le typage sur l'objet de configuration

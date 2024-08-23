@@ -102,17 +102,18 @@ function saveUserGroupsToFile(userGroups: any, file: string): void {
     // Write the user information to the file
     // Écrire les informations utilisateur dans le fichier
     fs.writeFileSync(filePath, JSON.stringify(userGroups, null, 2));
-    console.log(`Groups infos saved to ${filePath}`);
+    console.log(`User Groups infos saved to ${filePath}`);
   } catch (error) {
     if (isErrorWithMessage(error)) {
       console.error(
-        `Failed to save groups infos to file ${path.join(userDir, file)}: ${
-          error.message
-        }`
+        `Failed to save user groups infos to file ${path.join(
+          userDir,
+          file
+        )}: ${error.message}`
       );
     } else {
       console.error(
-        `Failed to save groups infos to file ${path.join(
+        `Failed to save user groups infos to file ${path.join(
           userDir,
           file
         )}: Unknown error`
@@ -159,10 +160,10 @@ async function getUserGroups(): Promise<void> {
       "user_group_represented.json"
     );
 
-    console.log("Groups infos retrieved and saved successfully.");
+    console.log("User Groups infos retrieved and saved successfully.");
   } catch (error) {
     if (isAxiosError(error)) {
-      console.error(`Failed to retrieve groups infos: ${error.message}`);
+      console.error(`Failed to retrieve user groups infos: ${error.message}`);
       if (error.response) {
         const responseData = JSON.stringify(error.response.data, null, 2);
         console.error(

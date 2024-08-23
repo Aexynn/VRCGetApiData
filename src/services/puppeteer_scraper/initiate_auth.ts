@@ -9,73 +9,124 @@ import fs from "fs";
 import path from "path";
 
 // Load environment variables
-// Charger les variables d'environnement
-config();
+config(); // EN: Load environment variables from a .env file.
+// FR: Charger les variables d'environnement depuis un fichier .env.
 
 // Create the auth directory if it does not exist
-// Créer le répertoire d'auth si nécessaire
-checkDir("auth");
+checkDir("auth"); // EN: Ensure the "auth" directory exists; create it if necessary.
+// FR: S'assurer que le répertoire "auth" existe; le créer si nécessaire.
+
+// Parse command-line arguments
+const args = process.argv.slice(2);
+const force = args.includes("--force"); // EN: Check if the script was run with the "--force" argument.
+// FR: Vérifier si le script a été lancé avec l'argument "--force".
 
 /**
- * Function to encode the login credentials in Base64.
+ * Check the validity of the authentication files.
  *
- * @param nickname - The user's nickname.
- * @param password - The user's password.
- * @returns The Base64 encoded credentials.
+ * @returns True if all required auth files are valid, false otherwise.
  *
- * // EN: Encodes the user's nickname and password into a Base64 string after URI encoding them.
- * // FR: Encode le nom d'utilisateur et le mot de passe en une chaîne Base64 après les avoir encodés en URI.
+ * // EN: Verifies if the authentication files exist and contain valid data.
+ * // FR: Vérifie si les fichiers d'authentification existent et contiennent des données valides.
+ */
+function areAuthFilesValid(): boolean {
+  try {
+    const cookiesPath = path.join(dir.auth, "cookies.json");
+    const requirementsPath = path.join(dir.auth, "requirements.json");
+    const storagePath = path.join(dir.auth, "storage.json");
+
+    // EN: Check if required auth files exist.
+    // FR: Vérifier si les fichiers d'authentification requis existent.
+    if (
+      !fs.existsSync(cookiesPath) ||
+      !fs.existsSync(requirementsPath) ||
+      !fs.existsSync(storagePath)
+    ) {
+      console.log("One or more auth files are missing.");
+      return false;
+    }
+
+    const cookies = JSON.parse(fs.readFileSync(cookiesPath, "utf8"));
+    const requirements = JSON.parse(fs.readFileSync(requirementsPath, "utf8"));
+    const storage = JSON.parse(fs.readFileSync(storagePath, "utf8"));
+
+    // EN: Check for specific fields in the auth files.
+    // FR: Vérifier la présence de champs spécifiques dans les fichiers d'authentification.
+    const hasAuthCookies = cookies.some((cookie: { name: string }) =>
+      cookie.name.includes("auth")
+    );
+    const hasTwoFactorAuthCookies = cookies.some((cookie: { name: string }) =>
+      cookie.name.includes("twoFactorAuth")
+    );
+    const hasEncodedLogin =
+      requirements.encoded_login &&
+      typeof requirements.encoded_login === "string";
+
+    if (!hasAuthCookies || !hasTwoFactorAuthCookies || !hasEncodedLogin) {
+      console.log("One or more required auth fields are missing or invalid.");
+      return false;
+    }
+
+    console.log("Auth files are valid.");
+    return true;
+  } catch (error) {
+    console.error("Error validating auth files:", error);
+    return false;
+  }
+}
+
+// EN: If the auth files are valid and the "--force" flag is not used, skip the login process.
+// FR: Si les fichiers d'authentification sont valides et que le drapeau "--force" n'est pas utilisé, sauter le processus de connexion.
+if (!force && areAuthFilesValid()) {
+  console.log("Auth files are valid. Skipping login process.");
+  process.exit(0);
+}
+
+/**
+ * Encode login credentials in Base64.
+ *
+ * @param nickname The user's nickname.
+ * @param password The user's password.
+ * @returns A Base64 encoded string of the login credentials.
+ *
+ * // EN: Encodes the login credentials (nickname and password) in Base64 format.
+ * // FR: Encode les informations de connexion (pseudo et mot de passe) au format Base64.
  */
 function encodeLogin(nickname: string, password: string): string {
-  // URI encode the username and password, then join them with a colon
-  // Encoder en URI le nom d'utilisateur et le mot de passe, puis les joindre avec un deux-points
   const encodedCredentials = `${encodeURIComponent(
     nickname
   )}:${encodeURIComponent(password)}`;
-
-  // Base64 encode the joined string
-  // Encoder en Base64 la chaîne jointe
   return Base64.encode(encodedCredentials);
 }
 
 (async (): Promise<void> => {
-  // Define environment variables
-  // Définir les variables d'environnement
+  // EN: Retrieve the password from environment variables or prompt the user if not found.
+  // FR: Récupérer le mot de passe depuis les variables d'environnement ou demander à l'utilisateur si non trouvé.
   const password: string =
     process.env.PASSWORD ||
     (await waitForUserInput(
       "Password not found in environment. Please enter your password: "
     ));
 
-  // Ensure that env.password is defined before use
-  // Assurer que env.password est défini avant utilisation
   if (!password) {
     throw new Error("Password is required but not provided.");
   }
 
-  // Encode the login credentials
-  // Encoder les identifiants de connexion
   const encodedLogin = encodeLogin(env.nickname, password);
 
-  // Define the path to save the requirements.json file
-  // Définir le chemin pour enregistrer le fichier requirements.json
   const requirementsFilePath = path.join(dir.auth, "requirements.json");
 
-  // Create the data object to save in the JSON file
-  // Créer l'objet de données à enregistrer dans le fichier JSON
   const data = {
     encoded_login: encodedLogin,
   };
 
-  // Write the encoded login information to the JSON file
-  // Écrire les informations de connexion encodées dans le fichier JSON
+  // EN: Save the encoded login information to a file for future use.
+  // FR: Enregistrer les informations de connexion encodées dans un fichier pour une utilisation future.
   fs.writeFileSync(requirementsFilePath, JSON.stringify(data, null, 2));
   console.log(
     `Encoded login information saved to ${requirementsFilePath} for future use (Thanks, VRChat API...).`
   );
 
-  // Launch Puppeteer browser instance
-  // Lancer l'instance de navigateur Puppeteer
   const browser = await puppeteer.launch({
     headless: cfg.browser.headless,
     args: [`--window-size=${cfg.browser.width},${cfg.browser.height}`],
@@ -86,19 +137,17 @@ function encodeLogin(nickname: string, password: string): string {
   });
 
   const page = await browser.newPage();
-  const navigationTimeout: number = 60000;
+  const navigationTimeout: number = 60000; // EN: Timeout for navigation in milliseconds.
+  // FR: Délai d'attente pour la navigation en millisecondes.
 
   try {
     await page.setDefaultNavigationTimeout(navigationTimeout);
 
-    // Navigate to the login page
-    // Naviguer vers la page de connexion
     const response = await page.goto(urls.login, { waitUntil: "networkidle2" });
     console.log("Request status: ", response?.status());
-    // Statut de la requête
 
-    // Wait for and accept the privacy policy
-    // Attendre et accepter la politique de confidentialité
+    // EN: Accept privacy settings if required.
+    // FR: Accepter les paramètres de confidentialité si nécessaire.
     await page.waitForSelector(selector.button.privacy, {
       timeout: navigationTimeout,
     });
@@ -107,10 +156,7 @@ function encodeLogin(nickname: string, password: string): string {
       button?.click();
     }, selector.button.privacy);
     console.log("Privacy button clicked.");
-    // Bouton de confidentialité cliqué
 
-    // Wait for username and password fields to be visible
-    // Attendre que les champs d'entrée du nom d'utilisateur et du mot de passe soient visibles
     await page.waitForSelector(selector.field.username, {
       timeout: navigationTimeout,
     });
@@ -119,64 +165,44 @@ function encodeLogin(nickname: string, password: string): string {
     });
 
     console.log("Logging in...");
-    // Connexion...
     await page.type(selector.field.username, env.nickname, { delay: 100 });
     await page.type(selector.field.password, password, { delay: 100 });
 
-    // Click the login button
-    // Cliquer sur le bouton de connexion
     await page.click(selector.button.login);
     console.log("Login button clicked. Waiting for 2FA page...");
-    // Bouton de connexion cliqué. Attente de la page 2FA...
 
-    // Wait for navigation to 2FA page
-    // Attendre la navigation vers la page 2FA
     await page.waitForNavigation({
       waitUntil: "networkidle2",
       timeout: navigationTimeout,
     });
 
-    // Check if we navigated to the 2FA page
-    // Vérifier si nous avons navigué vers la page 2FA
     if (page.url() !== urls.twoFA) {
       throw new Error("Failed to navigate to the 2FA page");
-      // Échec de la navigation vers la page 2FA
     }
     console.log("Navigated to the 2FA page.");
-    // Navigué vers la page 2FA
 
-    // Wait for the 2FA input field to be visible
-    // Attendre que le champ d'entrée 2FA soit visible
     await page.waitForSelector(selector.field.twoFA, {
       timeout: navigationTimeout,
     });
 
-    // Prompt user to enter 2FA code
-    // Demander à l'utilisateur de saisir le code 2FA
     const twoFA = await waitForUserInput(
       "Please enter your 2FA code and press Enter: "
     );
 
-    // Verify the number of input fields matches the length of the 2FA code
-    // Vérifier que le nombre de champs d'entrée correspond à la longueur du code 2FA
     const inputFields = await page.$$(selector.field.twoFA);
     if (inputFields.length !== twoFA.length) {
       throw new Error(
         "The number of 2FA input fields does not match the code length."
-        // Le nombre de champs d'entrée 2FA ne correspond pas à la longueur du code
       );
     }
 
-    // Enter the 2FA code into the input fields
-    // Saisir le code 2FA dans les champs d'entrée
     for (let i = 0; i < inputFields.length; i++) {
       await inputFields[i].type(twoFA[i], { delay: 100 });
     }
     console.log("2FA code entered.");
-    // Code 2FA entré
 
-    // Wait for the 2FA button to be enabled and visible
-    // Attendre que le bouton 2FA soit activé et visible
+    // EN: Wait for the 2FA next button to be enabled and then click it.
+    // FR: Attendre que le bouton suivant de la 2FA soit activé puis cliquer dessus.
     await page.waitForFunction(
       (selector: string) => {
         const button = document.querySelector(selector) as HTMLButtonElement;
@@ -186,34 +212,26 @@ function encodeLogin(nickname: string, password: string): string {
       selector.button.next2FA
     );
 
-    // Wait a short delay before clicking the 2FA button
-    // Attendre un court délai avant de cliquer sur le bouton 2FA
-    await wait(500);
+    await wait(500); // EN: Small delay before clicking the next button.
+    // FR: Petit délai avant de cliquer sur le bouton suivant.
 
-    // Click the 2FA button
-    // Cliquer sur le bouton 2FA
     await page.evaluate((selector: string) => {
       const button = document.querySelector<HTMLElement>(selector);
       button?.click();
     }, selector.button.next2FA);
     console.log("2FA button clicked.");
-    // Bouton 2FA cliqué
 
-    // Wait for a successful 2FA authentication and navigation to the profile page
-    // Attendre une authentification 2FA réussie et la navigation vers la page de profil
     await page.waitForNavigation({
       waitUntil: "networkidle2",
       timeout: navigationTimeout,
     });
 
-    // Filter the cookies to keep only those related to authentication
-    // Filtrer les cookies pour conserver uniquement ceux relatifs à l'authentification
+    // EN: Filter and save authentication cookies and local storage data.
+    // FR: Filtrer et enregistrer les cookies d'authentification et les données de stockage local.
     const cookies = (await page.cookies()).filter((cookie) =>
       ["auth", "twoFactorAuth"].some((term) => cookie.name.includes(term))
     );
 
-    // Extract the relevant local storage data
-    // Extraire les données locales pertinentes
     const localStorageData = await page.evaluate(() => {
       const json: Record<string, string | null> = {};
       for (let i = 0; i < localStorage.length; i++) {
@@ -225,28 +243,21 @@ function encodeLogin(nickname: string, password: string): string {
       return json;
     });
 
-    // Save the filtered cookies to a JSON file
-    // Enregistrer les cookies filtrés dans un fichier JSON
     fs.writeFileSync(
       path.join(dir.auth, `cookies.json`),
       JSON.stringify(cookies, null, 2)
     );
 
-    // Save the filtered local storage data to a JSON file
-    // Enregistrer les données locales filtrées dans un fichier JSON
     fs.writeFileSync(
       path.join(dir.auth, `storage.json`),
       JSON.stringify(localStorageData, null, 2)
     );
 
     console.log("Filtered cookies and storage data saved successfully.");
-    // Cookies filtrés et données locales enregistrées avec succès
   } catch (error) {
     console.error("An error occurred:", error);
-    // Une erreur est survenue
   } finally {
-    // Close the browser, whether the process was successful or not
-    // Fermer le navigateur, que le processus ait réussi ou non
-    await browser.close();
+    await browser.close(); // EN: Close the browser instance to free up resources.
+    // FR: Fermer l'instance du navigateur pour libérer des ressources.
   }
 })();

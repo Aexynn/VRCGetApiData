@@ -4,31 +4,31 @@
 
 <div align="center">
   <h1>
-    <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/Kyuddle/VRCScraperUserData?label=VRC Scraper User Data&color=white" width="400" draggable="false" />
+    <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/Kyuddle/VRCGetApiData?label=VRC Get Api Data&color=white" width="400" draggable="false" />
   </h1>
 </div>
 
 <p align="center">
-  <a href="https://github.com/search?q=repo%3AKyuddle%2FVRCScraperUserData+owner%3Akyuddle+NOT+path%3A%2F%5E%5C.github%5C%2F%2F+NOT+path%3A%2F%5E%5Cdist%5C%2F%2F+NOT+language%3A%22JSON+with+Comments%22+NOT+language%3AText+NOT+language%3A%22Git+Attributes%22+NOT+language%3AMarkdown&type=code" title="See the Used Language in Src" rel="noopener" target="_blank">
-    <img alt="Github top language" src="https://img.shields.io/github/languages/top/Kyuddle/VRCScraperUserData?color=white" draggable="false" />
+  <a href="https://github.com/search?q=repo%3AKyuddle%2FVRCGetApiData+owner%3Akyuddle+NOT+path%3A%2F%5E%5C.github%5C%2F%2F+NOT+path%3A%2F%5E%5Cdist%5C%2F%2F+NOT+language%3A%22JSON+with+Comments%22+NOT+language%3AText+NOT+language%3A%22Git+Attributes%22+NOT+language%3AMarkdown&type=code" title="See the Used Language in Src" rel="noopener" target="_blank">
+    <img alt="Github top language" src="https://img.shields.io/github/languages/top/Kyuddle/VRCGetApiData?color=white" draggable="false" />
   </a>
   <span>
-    <img alt="Repository size" src="https://img.shields.io/github/repo-size/Kyuddle/VRCScraperUserData?color=white" draggable="false" />
+    <img alt="Repository size" src="https://img.shields.io/github/repo-size/Kyuddle/VRCGetApiData?color=white" draggable="false" />
   </span>
-  <a href="https://github.com/Kyuddle/VRCScraperUserData/graphs/contributors" title="See the contributors" rel="noopener" target="_blank">
-    <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/Kyuddle/VRCScraperUserData?color=white">
+  <a href="https://github.com/Kyuddle/VRCGetApiData/graphs/contributors" title="See the contributors" rel="noopener" target="_blank">
+    <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/Kyuddle/VRCGetApiData?color=white">
   </a>
   <br />
-  <a href="https://github.com/Kyuddle/VRCScraperUserData/graphs/commit-activity" title="See the Commit Activity" rel="noopener" target="_blank">
-    <img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/m/Kyuddle/VRCScraperUserData?color=white" draggable="false" />
+  <a href="https://github.com/Kyuddle/VRCGetApiData/graphs/commit-activity" title="See the Commit Activity" rel="noopener" target="_blank">
+    <img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/m/Kyuddle/VRCGetApiData?color=white" draggable="false" />
   </a>
-  <a href="https://github.com/Kyuddle/VRCScraperUserData/graphs/traffic" title="See the Graphs Traffic" rel="noopener" target="_blank">
-    <img alt="GitHub viewer counter" src="https://img.shields.io/endpoint?url=https%3A%2F%2Fhits.dwyl.com%2FKyudle%2FVRCScraperUserData.json&color=white" />
+  <a href="https://github.com/Kyuddle/VRCGetApiData/graphs/traffic" title="See the Graphs Traffic" rel="noopener" target="_blank">
+    <img alt="GitHub viewer counter" src="https://img.shields.io/endpoint?url=https%3A%2F%2Fhits.dwyl.com%2FKyudle%2FVRCGetApiData.json&color=white" />
   </a>
 </p>
 
 <h4 align="center">
-	🚧 VRCSUD 🚀 is Under construction... 🚧
+	🚧 VRCGAD 🚀 is Under construction... 🚧
 </h4>
 
 <p align="center">
@@ -45,7 +45,7 @@
 
 ## :dart: About
 
-The project has been created in order to be able to quickly and efficiently obtain data relating to my own VRChat account, such as the list of my groups, my represented group, all my worlds, my bio, my avatar, etc...
+The project has been created in order to be able to quickly and efficiently obtain data relating to my own VRChat account, such as the list of my groups, my represented group, all my worlds, my bio, my avatar, all members of my specific group, all bans of my specific group, all infos of my specific group etc...
 
 And then put it all on a lightweight web server so I could have an API with a cache that would be quicker and easier to use and fetch in applications.
 
@@ -84,21 +84,22 @@ Before starting :checkered_flag:, you need to have [Git](https://git-scm.com) an
 Also create an .env file with the data entered in the template below:
 
 ```js
-NICKNAME = YourUsernameUsedInTheCreation;
-PASSWORD = IfYouNeedToNotRefillAllTimeIsOptional;
-USER_ID = usr_YOURIDVRCHAT;
-USER_AGENT=EXAMPLE (https://github.com/Kyuddle/VRCScraperUserData)
-PORT = IfYouWantToChangeTheDefaultWebAPIPort;
+NICKNAME=YourUsernameUsedInTheCreation;
+PASSWORD=IfYouNeedToNotRefillAllTimeIsOptional;
+USER_ID=usr_YOURIDVRCHAT;
+GROUP_ID=grp_YOURGROUPID;
+USER_AGENT=EXAMPLE (https://github.com/Kyuddle/VRCGetApiData)
+PORT=IfYouWantToChangeTheDefaultWebAPIPort;
 ```
 
 ## :checkered_flag: Starting
 
 ```bash
 # Clone this project
-$ git clone https://github.com/Kyuddle/VRCScraperUserData
+$ git clone https://github.com/Kyuddle/VRCGetApiData
 
 # Access
-$ cd VRCScraperUserData
+$ cd VRCGetApiData
 
 # Install dependencies
 $ npm i

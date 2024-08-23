@@ -1,7 +1,7 @@
 {
-  "name": "vrc-scraper-data",
-  "version": "0.0.4",
-  "description": "A Scraper & API Website for VRChat to retrieve information directly from the site & the API to obtain information on a user (friend) such as groups joined, group represented, profile, rank, etc...",
+  "name": "vrc-get-api-data",
+  "version": "0.0.5",
+  "description": "A Scraper/API user & API Website for VRChat to retrieve information directly from the site & the API to obtain information on a user (friend) such as groups joined, group represented, profile, rank, etc...",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,23 +10,27 @@
     "ts:cb": "npm run ts:clean && npm run ts:build",
     "//": "Dev commands",
     "scrape:auth": "ts-node src/services/puppeteer_scraper/initiate_auth.ts",
+    "scrape:auth:force": "npm run scrape:auth -- --force",
     "old@scrape:user": "ts-node src/services/puppeteer_scraper/get_user_data.ts",
     "web:api": "ts-node src/services/express_web/server.ts",
     "api:user": "ts-node src/services/axios_fetch/get_user_infos.ts",
     "api:user:groups": "ts-node src/services/axios_fetch/get_user_groups.ts",
+    "api:group": "ts-node src/services/axios_fetch/get_group_data.ts",
     "//": "Prod commands",
     "dist/scrape:auth": "node dist/services/puppeteer_scraper/initiate_auth.js",
+    "dist/scrape:auth:force": "npm run dist/scrape:auth -- --force",
     "dist/old@scrape:user": "node dist/services/puppeteer_scraper/get_user_data.js",
     "dist/web:api": "node dist/services/express_web/server.js",
     "dist/api:user": "node dist/services/axios_fetch/get_user_infos.ts",
     "dist/api:user:groups": "node dist/services/axios_fetch/get_user_groups.ts",
+    "dist/api:group": "node src/services/axios_fetch/get_group_data.js",
     "//": "Run commands",
     "prestart": "npm run ts:cb",
     "//OldStart": "concurrently -i -p \"[{name}] {time}-{pid}\" -n \"SCRP,HTTP\" -c \"bgRed.bold,bgBlue.bold\" \"npm run dist/scrape:user\" \"npm run dist/web:api\" --default-input-target"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Kyuddle/VRCScraperUserData.git"
+    "url": "git+https://github.com/Kyuddle/VRCGetApiData.git"
   },
   "keywords": [
     "scrape",
@@ -42,14 +46,15 @@
     "friends",
     "group",
     "puppeteer",
-    "express"
+    "express",
+    "axios"
   ],
   "author": "Kyuddle",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Kyuddle/VRCScraperUserData/issues"
+    "url": "https://github.com/Kyuddle/VRCGetApiData/issues"
   },
-  "homepage": "https://github.com/Kyuddle/VRCScraperUserData#readme",
+  "homepage": "https://github.com/Kyuddle/VRCGetApiData#readme",
   "dependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^22.5.0",
