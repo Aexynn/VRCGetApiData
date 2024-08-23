@@ -93,8 +93,8 @@ app.get("/api/users", (req, res) => {
  * // EN: Handles GET requests to retrieve worlds data from 'worlds_data.json'.
  * // FR: Gère les requêtes GET pour récupérer les données des mondes depuis 'worlds_data.json'.
  */
-app.get("/api/users/worlds", (req, res) => {
-    fs_1.default.readFile(path_1.default.join(config_1.dir.user, "worlds_data.json"), "utf8", (err, data) => {
+app.get("/api/old/users/worlds", (req, res) => {
+    fs_1.default.readFile(path_1.default.join(config_1.dir.user, "old/worlds_data.json"), "utf8", (err, data) => {
         if (err) {
             console.error("Error reading JSON file:", err);
             return res.status(500).json(config_1.cfg.web_api.errorServer);
@@ -119,8 +119,8 @@ app.get("/api/users/worlds", (req, res) => {
  * // EN: Handles GET requests to retrieve the list of groups from 'groupsList_data.json'.
  * // FR: Gère les requêtes GET pour récupérer la liste des groupes depuis 'groupsList_data.json'.
  */
-app.get("/api/users/groups", (req, res) => {
-    fs_1.default.readFile(path_1.default.join(config_1.dir.user, "groupsList_data.json"), "utf8", (err, data) => {
+app.get("/api/old/users/groups", (req, res) => {
+    fs_1.default.readFile(path_1.default.join(config_1.dir.user, "old/groupsList_data.json"), "utf8", (err, data) => {
         if (err) {
             console.error("Error reading JSON file:", err);
             return res.status(500).json(config_1.cfg.web_api.errorServer);
@@ -145,8 +145,8 @@ app.get("/api/users/groups", (req, res) => {
  * // EN: Handles GET requests to retrieve data of represented groups from 'groupsRepresented_data.json'.
  * // FR: Gère les requêtes GET pour récupérer les données des groupes représentés depuis 'groupsRepresented_data.json'.
  */
-app.get("/api/users/groups/represented", (req, res) => {
-    fs_1.default.readFile(path_1.default.join(config_1.dir.user, "groupsRepresented_data.json"), "utf8", (err, data) => {
+app.get("/api/old/users/groups/represented", (req, res) => {
+    fs_1.default.readFile(path_1.default.join(config_1.dir.user, "old/groupsRepresented_data.json"), "utf8", (err, data) => {
         if (err) {
             console.error("Error reading JSON file:", err);
             return res.status(500).json(config_1.cfg.web_api.errorServer);
@@ -171,8 +171,8 @@ app.get("/api/users/groups/represented", (req, res) => {
  * // EN: Handles GET requests to retrieve a screenshot image from 'screenshot.png'.
  * // FR: Gère les requêtes GET pour récupérer une image de capture d'écran depuis 'screenshot.png'.
  */
-app.get("/api/users/screenshot", (req, res) => {
-    fs_1.default.readFile(path_1.default.join(config_1.dir.user, "screenshot.png"), (err, data) => {
+app.get("/api/old/users/screenshot", (req, res) => {
+    fs_1.default.readFile(path_1.default.join(config_1.dir.user, "old/screenshot.png"), (err, data) => {
         if (err) {
             console.error("Error reading screenshot file:", err);
             return res.status(500).json(config_1.cfg.web_api.errorServer);
