@@ -2,9 +2,9 @@ import puppeteer, { Page } from "puppeteer";
 import { config } from "dotenv";
 import { cfg, dir, urls, selector, env } from "../../libs/config";
 import { waitForUserInput } from "../../libs/user_action";
+import { checkDir } from "../../libs/check_requirements";
 import fs from "fs";
 import path from "path";
-import { checkDir } from "../../libs/check_requirements";
 
 // Load environment variables
 // Charger les variables d'environnement
@@ -231,15 +231,15 @@ async function saveData(
     // Save the fetched data to JSON files
     // Sauvegarder les données récupérées dans des fichiers JSON
     fs.writeFileSync(
-      path.join(dataDir, `${user_id}/user_data.json`),
+      path.join(dataDir, `user_data.json`),
       JSON.stringify(data.user, null, 2)
     );
     fs.writeFileSync(
-      path.join(dataDir, `${user_id}/worlds_data.json`),
+      path.join(dataDir, `worlds_data.json`),
       JSON.stringify(data.worlds, null, 2)
     );
     fs.writeFileSync(
-      path.join(dataDir, `${user_id}/groupsRepresented_data.json`),
+      path.join(dataDir, `groupsRepresented_data.json`),
       JSON.stringify(data.groups.represented, null, 2)
     );
 
@@ -250,7 +250,7 @@ async function saveData(
       const apiGroupsUrl = `${apiUserUrl}/groups`;
       data.groups.list = await fetchJsonFromUrl(page, apiGroupsUrl);
       fs.writeFileSync(
-        path.join(dataDir, `${user_id}/groupsList_data.json`),
+        path.join(dataDir, `groupsList_data.json`),
         JSON.stringify(data.groups.list, null, 2)
       );
     } else {
@@ -428,10 +428,7 @@ async function saveData(
 
       // Take and save a screenshot of the profile page
       // Prendre et sauvegarder une capture d'écran de la page de profil
-      const screenshotPath = path.join(
-        cfg.data_folder,
-        `${env.user_id}/screenshot.png`
-      );
+      const screenshotPath = path.join(dir.user, "screenshot.png");
       await page.screenshot({ path: screenshotPath, fullPage: true });
       console.log(
         `Latest profile screenshot taken and saved to ${screenshotPath}.`
@@ -440,7 +437,7 @@ async function saveData(
 
       // Save the data to JSON files
       // Sauvegarder les données dans des fichiers JSON
-      await saveData(page, urls.api.users, cfg.data_folder, env.user_id);
+      await saveData(page, urls.api.users, dir.user, env.user_id);
       console.log("Data saved.");
       // Données sauvegardées
 

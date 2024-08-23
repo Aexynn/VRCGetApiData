@@ -2,9 +2,9 @@ import puppeteer, { Page } from "puppeteer";
 import { config } from "dotenv";
 import { cfg, dir, urls, selector, env } from "../../libs/config";
 import { waitForUserInput } from "../../libs/user_action";
+import { checkDir } from "../../libs/check_requirements";
 import fs from "fs";
 import path from "path";
-import { checkDir } from "../../libs/check_requirements";
 
 // Load environment variables
 config();
