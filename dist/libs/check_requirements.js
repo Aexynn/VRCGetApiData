@@ -101,11 +101,20 @@ function checkDir(target) {
             break;
         case "user":
             // Create the user directory if it does not exist
-            // EN: If the 'user' directory does not exist, create it.
-            // FR: Si le répertoire 'user' n'existe pas, créez-le.
+            // EN: If the 'users' directory does not exist, create it.
+            // FR: Si le répertoire 'users' n'existe pas, créez-le.
             if (!fs_1.default.existsSync(config_1.dir.user)) {
                 console.log(`Creating directory: ${config_1.dir.user}`);
                 fs_1.default.mkdirSync(config_1.dir.user, { recursive: true });
+            }
+            break;
+        case "group":
+            // Create the group directory if it does not exist
+            // EN: If the 'groups' directory does not exist, create it.
+            // FR: Si le répertoire 'groups' n'existe pas, créez-le.
+            if (!fs_1.default.existsSync(config_1.dir.groups)) {
+                console.log(`Creating directory: ${config_1.dir.groups}`);
+                fs_1.default.mkdirSync(config_1.dir.groups, { recursive: true });
             }
             break;
         default:

@@ -30,9 +30,10 @@ exports.cfg = {
     },
     data_folder: "data",
     web_api: {
-        redirect404: "https://github.com/Kyuddle/VRCScraperUserData",
+        redirect404: "https://github.com/Kyuddle/VRCGetApiData",
         errorServer: '{"error": "An internal server error has occurred. Please try again later."}',
     },
+    activate_group_function: true,
 };
 /**
  * Environment variables for user ID, nickname, API port, and user agent.
@@ -72,6 +73,7 @@ if (!exports.env.user_id || !exports.env.nickname || !exports.env.userAgent) {
  */
 exports.dir = {
     user: `${exports.cfg.data_folder}/users/${process.env.USER_ID}`,
+    groups: `${exports.cfg.data_folder}/groups/${process.env.GROUP_ID}`,
     auth: `${exports.cfg.data_folder}/auth`,
 };
 /**
@@ -93,8 +95,25 @@ exports.urls = {
             list: `${exports.cfg.vrchat_domain}/api/1/users/${process.env.USER_ID}/groups`,
             represented: `${exports.cfg.vrchat_domain}/api/1/users/${process.env.USER_ID}/groups/represented`,
         },
+        group_data: {
+            infos: `${exports.cfg.vrchat_domain}/api/1/groups/${process.env.GROUP_ID}`,
+            members: `${exports.cfg.vrchat_domain}/api/1/groups/${process.env.GROUP_ID}/members`,
+            bans: `${exports.cfg.vrchat_domain}/api/1/groups/${process.env.GROUP_ID}/bans`,
+        },
     },
 };
+/**
+ * Throws an error if critical environment variables (GROUP_ID) are not set.
+ *
+ * @remarks
+ * Ensures that all required environment variables are defined; otherwise, it throws an error.
+ *
+ * // EN: Checks and throws an error if any critical environment variables are missing.
+ * // FR: Vérifie et lance une erreur si des variables d'environnement critiques sont manquantes.
+ */
+if (!process.env.GROUP_ID && exports.cfg.activate_group_function) {
+    throw new Error("GROUP_ID is not set. Please check your environment variables (.env) / If you don't need just desactivate in CFG const.");
+}
 /**
  * CSS selectors for form fields and buttons on the login and profile pages.
  *
