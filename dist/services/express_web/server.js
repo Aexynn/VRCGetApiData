@@ -94,7 +94,7 @@ app.get("/api/users", (req, res) => {
  * // FR: Gère les requêtes GET pour récupérer les données des mondes depuis 'worlds_data.json'.
  */
 app.get("/api/old/users/worlds", (req, res) => {
-    fs_1.default.readFile(path_1.default.join(config_1.dir.user, "old/worlds_data.json"), "utf8", (err, data) => {
+    fs_1.default.readFile(path_1.default.join(config_1.dir.user, "old_method/worlds_data.json"), "utf8", (err, data) => {
         if (err) {
             console.error("Error reading JSON file:", err);
             return res.status(500).json(config_1.cfg.web_api.errorServer);
@@ -120,7 +120,7 @@ app.get("/api/old/users/worlds", (req, res) => {
  * // FR: Gère les requêtes GET pour récupérer la liste des groupes depuis 'groupsList_data.json'.
  */
 app.get("/api/old/users/groups", (req, res) => {
-    fs_1.default.readFile(path_1.default.join(config_1.dir.user, "old/groupsList_data.json"), "utf8", (err, data) => {
+    fs_1.default.readFile(path_1.default.join(config_1.dir.user, "old_method/groupsList_data.json"), "utf8", (err, data) => {
         if (err) {
             console.error("Error reading JSON file:", err);
             return res.status(500).json(config_1.cfg.web_api.errorServer);
@@ -146,7 +146,7 @@ app.get("/api/old/users/groups", (req, res) => {
  * // FR: Gère les requêtes GET pour récupérer les données des groupes représentés depuis 'groupsRepresented_data.json'.
  */
 app.get("/api/old/users/groups/represented", (req, res) => {
-    fs_1.default.readFile(path_1.default.join(config_1.dir.user, "old/groupsRepresented_data.json"), "utf8", (err, data) => {
+    fs_1.default.readFile(path_1.default.join(config_1.dir.user, "old_method/groupsRepresented_data.json"), "utf8", (err, data) => {
         if (err) {
             console.error("Error reading JSON file:", err);
             return res.status(500).json(config_1.cfg.web_api.errorServer);
@@ -172,7 +172,7 @@ app.get("/api/old/users/groups/represented", (req, res) => {
  * // FR: Gère les requêtes GET pour récupérer une image de capture d'écran depuis 'screenshot.png'.
  */
 app.get("/api/old/users/screenshot", (req, res) => {
-    fs_1.default.readFile(path_1.default.join(config_1.dir.user, "old/screenshot.png"), (err, data) => {
+    fs_1.default.readFile(path_1.default.join(config_1.dir.user, "old_method/screenshot.png"), (err, data) => {
         if (err) {
             console.error("Error reading screenshot file:", err);
             return res.status(500).json(config_1.cfg.web_api.errorServer);
