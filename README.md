@@ -9,12 +9,9 @@
 </div>
 
 <p align="center">
-  <span>
-    
-  </span> 
-  <span>
+  <a href="https://github.com/search?q=repo%3AKyuddle%2FVRCScraperUserData+owner%3Akyuddle+NOT+path%3A%2F%5E%5C.github%5C%2F%2F+NOT+path%3A%2F%5E%5Cdist%5C%2F%2F+NOT+language%3A%22JSON+with+Comments%22+NOT+language%3AText+NOT+language%3A%22Git+Attributes%22+NOT+language%3AMarkdown&type=code" title="See the Used Language in Src" rel="noopener" target="_blank">
     <img alt="Github top language" src="https://img.shields.io/github/languages/top/Kyuddle/VRCScraperUserData?color=white" draggable="false" />
-  </span>
+  </a>
   <span>
     <img alt="Repository size" src="https://img.shields.io/github/repo-size/Kyuddle/VRCScraperUserData?color=white" draggable="false" />
   </span>
