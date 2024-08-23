@@ -37,23 +37,50 @@ app.use(express_1.default.static(path_1.default.join(__dirname, config_1.dir.use
  * @param req The request object.
  * @param res The response object.
  *
- * // EN: Handles GET requests to retrieve user data from 'user_infos.json'.
- * // FR: Gère les requêtes GET pour récupérer les données utilisateur depuis 'user_infos.json'.
+ * // EN: Handles GET requests to retrieve user data from 'user_infos.json' or 'old_method/user_data.json'.
+ * // FR: Gère les requêtes GET pour récupérer les données utilisateur depuis 'user_infos.json' ou 'old_method/user_data.json'.
  */
 app.get("/api/users", (req, res) => {
-    fs_1.default.readFile(path_1.default.join(config_1.dir.user, "user_infos.json"), "utf8", (err, data) => {
-        if (err) {
-            console.error("Error reading JSON file:", err);
-            return res.status(500).json(config_1.cfg.web_api.errorServer);
+    // Define the paths to the JSON files
+    const filePath1 = path_1.default.join(config_1.dir.user, "user_infos.json");
+    const filePath2 = path_1.default.join(config_1.dir.user, "old_method/user_data.json");
+    // Check if the first file exists, otherwise check the second file
+    fs_1.default.access(filePath1, fs_1.default.constants.F_OK, (err) => {
+        if (!err) {
+            // File exists, read it
+            fs_1.default.readFile(filePath1, "utf8", (err, data) => {
+                if (err) {
+                    console.error("Error reading JSON file:", err);
+                    return res.status(500).json(config_1.cfg.web_api.errorServer);
+                }
+                try {
+                    res.set("Content-Type", "application/json");
+                    const jsonData = JSON.parse(data);
+                    res.json(jsonData);
+                }
+                catch (parseError) {
+                    console.error("Error parsing JSON file:", parseError);
+                    res.status(500).json(config_1.cfg.web_api.errorServer);
+                }
+            });
         }
-        try {
-            res.set("Content-Type", "application/json");
-            const jsonData = JSON.parse(data);
-            res.json(jsonData);
-        }
-        catch (parseError) {
-            console.error("Error parsing JSON file:", parseError);
-            res.status(500).json(config_1.cfg.web_api.errorServer);
+        else {
+            // File does not exist, try the second file
+            fs_1.default.readFile(filePath2, "utf8", (err, data) => {
+                if (err) {
+                    console.error("Error reading JSON file:", err);
+                    return res.status(500).json(config_1.cfg.web_api.errorServer);
+                }
+                try {
+                    res.set("Content-Type", "application/json");
+                    const jsonData = JSON.parse(data);
+                    res.json(jsonData);
+                }
+                catch (parseError) {
+                    console.error("Error parsing JSON file:", parseError);
+                    res.status(500).json(config_1.cfg.web_api.errorServer);
+                }
+            });
         }
     });
 });
