@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "steoates.autoimport",
+    "dbaeumer.vscode-eslint",
+    "github.vscode-github-actions",
+    "eamodio.gitlens",
+    "jhuix.markdown-preview-showdown",
+    "esbenp.prettier-vscode"
+  ]
+}
