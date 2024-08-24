@@ -189,91 +189,130 @@ app.get("/api/users/groups/represented", (req: Request, res: Response) => {
   });
 });
 
-/**
- * Route to get group data.
- *
- * @param req The request object.
- * @param res The response object.
- *
- * // EN: Handles GET requests to retrieve group data from 'group_infos.json'.
- * // FR: Gère les requêtes GET pour récupérer les données du groupe depuis 'group_bans.json' .
- */
-app.get("/api/groups", (req: Request, res: Response) => {
-  fs.readFile(
-    path.join(dir.groups, "group_infos.json"),
-    "utf8",
-    (err, data) => {
-      if (err) {
-        console.error("Error reading JSON file:", err);
-        return res.status(500).json(cfg.web_api.errorServer);
+if (cfg.activate_group_feature) {
+  /**
+   * Route to get group data.
+   *
+   * @param req The request object.
+   * @param res The response object.
+   *
+   * @remarks
+   * Handles GET requests to retrieve group data from 'group_infos.json'.
+   *
+   * // EN: Handles GET requests to retrieve group data from 'group_infos.json'.
+   * // FR: Gère les requêtes GET pour récupérer les données du groupe depuis 'group_infos.json'.
+   */
+  app.get("/api/groups", (req: Request, res: Response) => {
+    fs.readFile(
+      path.join(dir.groups, "group_infos.json"),
+      "utf8",
+      (err, data) => {
+        if (err) {
+          console.error("Error reading JSON file:", err);
+          return res.status(500).json(cfg.web_api.errorServer);
+        }
+        try {
+          res.set("Content-Type", "application/json");
+          const jsonData = JSON.parse(data);
+          res.json(jsonData);
+        } catch (parseError) {
+          console.error("Error parsing JSON file:", parseError);
+          res.status(500).json(cfg.web_api.errorServer);
+        }
       }
-      try {
-        res.set("Content-Type", "application/json");
-        const jsonData = JSON.parse(data);
-        res.json(jsonData);
-      } catch (parseError) {
-        console.error("Error parsing JSON file:", parseError);
-        res.status(500).json(cfg.web_api.errorServer);
-      }
-    }
-  );
-});
-
-/**
- * Route to get group members data.
- *
- * @param req The request object.
- * @param res The response object.
- *
- * // EN: Handles GET requests to retrieve group members data from 'group_members.json'.
- * // FR: Gère les requêtes GET pour récupérer les données des membres du groupe depuis 'group_members.json' .
- */
-app.get("/api/groups/members", (req: Request, res: Response) => {
-  fs.readFile(
-    path.join(dir.groups, "group_members.json"),
-    "utf8",
-    (err, data) => {
-      if (err) {
-        console.error("Error reading JSON file:", err);
-        return res.status(500).json(cfg.web_api.errorServer);
-      }
-      try {
-        res.set("Content-Type", "application/json");
-        const jsonData = JSON.parse(data);
-        res.json(jsonData);
-      } catch (parseError) {
-        console.error("Error parsing JSON file:", parseError);
-        res.status(500).json(cfg.web_api.errorServer);
-      }
-    }
-  );
-});
-
-/**
- * Route to get group ban data.
- *
- * @param req The request object.
- * @param res The response object.
- *
- * // EN: Handles GET requests to retrieve group ban data from 'group_bans.json'.
- * // FR: Gère les requêtes GET pour récupérer les données des bannis du groupe depuis 'group_bans.json' .
- */
-app.get("/api/groups/bans", (req: Request, res: Response) => {
-  fs.readFile(path.join(dir.groups, "group_bans.json"), "utf8", (err, data) => {
-    if (err) {
-      console.error("Error reading JSON file:", err);
-      return res.status(500).json(cfg.web_api.errorServer);
-    }
-    try {
-      res.set("Content-Type", "application/json");
-      const jsonData = JSON.parse(data);
-      res.json(jsonData);
-    } catch (parseError) {
-      console.error("Error parsing JSON file:", parseError);
-      res.status(500).json(cfg.web_api.errorServer);
-    }
+    );
   });
-});
+
+  /**
+   * Route to get group members data.
+   *
+   * @param req The request object.
+   * @param res The response object.
+   *
+   * @remarks
+   * Handles GET requests to retrieve group members data from 'group_members.json'.
+   *
+   * // EN: Handles GET requests to retrieve group members data from 'group_members.json'.
+   * // FR: Gère les requêtes GET pour récupérer les données des membres du groupe depuis 'group_members.json'.
+   */
+  app.get("/api/groups/members", (req: Request, res: Response) => {
+    fs.readFile(
+      path.join(dir.groups, "group_members.json"),
+      "utf8",
+      (err, data) => {
+        if (err) {
+          console.error("Error reading JSON file:", err);
+          return res.status(500).json(cfg.web_api.errorServer);
+        }
+        try {
+          res.set("Content-Type", "application/json");
+          const jsonData = JSON.parse(data);
+          res.json(jsonData);
+        } catch (parseError) {
+          console.error("Error parsing JSON file:", parseError);
+          res.status(500).json(cfg.web_api.errorServer);
+        }
+      }
+    );
+  });
+
+  /**
+   * Route to get group ban data.
+   *
+   * @param req The request object.
+   * @param res The response object.
+   *
+   * @remarks
+   * Handles GET requests to retrieve group ban data from 'group_bans.json'.
+   *
+   * // EN: Handles GET requests to retrieve group ban data from 'group_bans.json'.
+   * // FR: Gère les requêtes GET pour récupérer les données des bannis du groupe depuis 'group_bans.json'.
+   */
+  app.get("/api/groups/members/bans", (req: Request, res: Response) => {
+    fs.readFile(
+      path.join(dir.groups, "group_bans.json"),
+      "utf8",
+      (err, data) => {
+        if (err) {
+          console.error("Error reading JSON file:", err);
+          return res.status(500).json(cfg.web_api.errorServer);
+        }
+        try {
+          res.set("Content-Type", "application/json");
+          const jsonData = JSON.parse(data);
+          res.json(jsonData);
+        } catch (parseError) {
+          console.error("Error parsing JSON file:", parseError);
+          res.status(500).json(cfg.web_api.errorServer);
+        }
+      }
+    );
+  });
+} else {
+  /**
+   * Route to indicate that the group feature is disabled.
+   *
+   * @param req The request object.
+   * @param res The response object.
+   *
+   * @remarks
+   * Handles GET requests for '/api/groups', '/api/groups/members', and '/api/groups/members/bans' when the group feature is disabled.
+   *
+   * // EN: Handles GET requests to indicate that the group feature is disabled.
+   * // FR: Gère les requêtes GET pour indiquer que la fonctionnalité des groupes est désactivée.
+   */
+  app.get("/api/groups", (req: Request, res: Response) => {
+    res.status(404).json({ error: cfg.web_api.groupFeature });
+  });
+
+  app.get("/api/groups/members", (req: Request, res: Response) => {
+    res.status(404).json({ error: cfg.web_api.groupFeature });
+  });
+
+  app.get("/api/groups/members/bans", (req: Request, res: Response) => {
+    res.status(404).json({ error: cfg.web_api.groupFeature });
+  });
+}
 
 /**
  * Handle 404 - Not Found.
@@ -285,7 +324,7 @@ app.get("/api/groups/bans", (req: Request, res: Response) => {
  * // FR: Gère les erreurs 404 en redirigeant vers une URL spécifiée.
  */
 app.use((req: Request, res: Response) => {
-  res.status(404).redirect(cfg.web_api.redirect404);
+  res.status(404).redirect(302, cfg.web_api.redirect404);
 });
 
 /**
@@ -300,7 +339,7 @@ app.use((req: Request, res: Response) => {
  */
 app.use((err: Error, req: Request, res: Response) => {
   console.error(err.stack);
-  res.status(500).json(cfg.web_api.errorServer);
+  res.status(500).json({ error: cfg.web_api.errorServer });
 });
 
 /**

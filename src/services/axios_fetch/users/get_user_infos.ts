@@ -1,21 +1,21 @@
 import fs from "fs";
 import path from "path";
 import axios from "axios";
-import { cfg, dir, env, urls } from "../../libs/config";
-import { checkDir } from "../../libs/check_requirements";
-import { isAxiosError, isErrorWithMessage } from "../../libs/errors";
+import { dir, env, urls } from "../../../libs/config";
+import { checkDir } from "../../../libs/check_requirements";
+import { isAxiosError, isErrorWithMessage } from "../../../libs/errors";
 
-if (cfg.activate_group_function) {
+export async function _getUserInfos(): Promise<void> {
   /**
-   * Create the group directory if it does not exist.
+   * Create the user directory if it does not exist.
    *
    * @remarks
-   * Calls the `checkDir` function to ensure the group directory exists.
+   * Calls the `checkDir` function to ensure the user directory exists.
    *
-   * // EN: Ensures that the group directory exists by calling the `checkDir` function.
+   * // EN: Ensures that the user directory exists by calling the `checkDir` function.
    * // FR: Assure que le répertoire utilisateur existe en appelant la fonction `checkDir`.
    */
-  checkDir("group");
+  checkDir("user");
 
   /**
    * Load JSON data from a file.
@@ -79,45 +79,46 @@ if (cfg.activate_group_function) {
   if (!storage || Object.keys(storage).length === 0) {
     console.log("Local storage data is empty, proceeding without it.");
   }
+
   /**
    * Save user information to a JSON file.
    *
-   * @param userGroups The user information to save.
-   * @param file The file name to save the data into.
+   * @param userInfo The user information to save.
+   *
+   * // EN: Saves the provided user information to a JSON file.
+   * // FR: Enregistre les informations utilisateur fournies dans un fichier JSON.
    */
-  async function saveGroupDataToFile(
-    userGroups: any,
-    file: string
-  ): Promise<void> {
-    const groupDir = dir.groups;
+  function saveUserInfoToFile(userInfo: any): void {
+    const userDir = dir.user;
 
+    // Ensure the user directory exists
+    // S'assurer que le répertoire utilisateur existe
     try {
-      // Ensure the user directory exists
-      if (!fs.existsSync(groupDir)) {
-        fs.mkdirSync(groupDir, { recursive: true });
+      if (!fs.existsSync(userDir)) {
+        fs.mkdirSync(userDir, { recursive: true });
       }
 
       // Define the file path for saving user information
-      const filePath = path.join(groupDir, file);
+      // Définir le chemin du fichier pour enregistrer les informations utilisateur
+      const filePath = path.join(userDir, "user_infos.json");
 
       // Write the user information to the file
-      await fs.promises.writeFile(
-        filePath,
-        JSON.stringify(userGroups, null, 2)
-      );
-      console.log(`Groups infos saved to ${filePath}`);
+      // Écrire les informations utilisateur dans le fichier
+      fs.writeFileSync(filePath, JSON.stringify(userInfo, null, 2));
+      console.log(`User info saved to ${filePath}`);
     } catch (error) {
       if (isErrorWithMessage(error)) {
         console.error(
-          `Failed to save groups infos to file ${path.join(groupDir, file)}: ${
-            error.message
-          }`
+          `Failed to save user info to file ${path.join(
+            userDir,
+            "user_infos.json"
+          )}: ${error.message}`
         );
       } else {
         console.error(
-          `Failed to save groups infos to file ${path.join(
-            groupDir,
-            file
+          `Failed to save user info to file ${path.join(
+            userDir,
+            "user_infos.json"
           )}: Unknown error`
         );
       }
@@ -125,64 +126,39 @@ if (cfg.activate_group_function) {
   }
 
   /**
-   * Get JSON data from an API and save it to a file.
+   * Make an API request to retrieve user information and save it to a file.
    *
-   * @param url The API URL to request.
-   * @param file The file name to save the data into.
+   * @remarks
+   * Constructs an API request with the appropriate headers and cookies, retrieves user information, and saves it to a file.
+   *
+   * // EN: Performs an API request to get user information and saves the result to a file.
+   * // FR: Effectue une requête API pour obtenir les informations utilisateur et sauvegarde le résultat dans un fichier.
    */
-  async function getGroupJsonData(url: string, file: string): Promise<void> {
-    // Build header
-    const headers = {
-      Cookie: cookies
-        .map(
-          (cookie: { name: string; value: string }) =>
-            `${cookie.name}=${cookie.value}`
-        )
-        .join("; "),
-      "User-Agent": env.userAgent,
-      "Accept-Encoding": "gzip, compress, deflate, br",
-      Accept: "application/json, text/plain, */*",
-    };
-
+  async function getUserInfos(): Promise<void> {
     try {
+      // Build header
+      // Construire l'en-tête
+      const headers = {
+        Cookie: cookies
+          .map((cookie: any) => `${cookie.name}=${cookie.value}`)
+          .join("; "),
+        "User-Agent": env.userAgent,
+        "Accept-Encoding": "gzip, compress, deflate, br",
+        Accept: "application/json, text/plain, */*",
+      };
+
       // Set up the request with headers, including cookies
-      const response = await axios.get(url, { headers });
-      await saveGroupDataToFile(response.data, file);
+      // Configurer la requête avec les en-têtes, y compris les cookies
+      const response = await axios.get(urls.api.users, { headers });
+
+      // Save the retrieved user information to a file
+      // Enregistrer les informations utilisateur récupérées dans un fichier
+      saveUserInfoToFile(response.data);
+
+      console.log("User info retrieved and saved successfully.");
     } catch (error) {
       if (isAxiosError(error)) {
-        console.error(`Failed to retrieve data from ${url}: ${error.message}`);
-        if (error.response) {
-          const responseData = JSON.stringify(error.response.data, null, 2);
-          console.error(
-            `API responded with status ${
-              error.response.status ?? "Unknown status"
-            } and data: ${responseData ?? "No data"}`
-          );
-        } else {
-          console.error("No response data available.");
-        }
-      } else {
-        console.error("An unknown error occurred:", error);
-      }
-    }
-  }
-
-  /**
-   * Make API requests to retrieve group data and save it to files.
-   */
-  async function getGroupData(): Promise<void> {
-    try {
-      // Await each call to ensure they are processed sequentially
-      await Promise.all([
-        getGroupJsonData(urls.api.group_data.infos, "group_infos.json"),
-        getGroupJsonData(urls.api.group_data.members, "group_members.json"),
-        getGroupJsonData(urls.api.group_data.bans, "group_bans.json"),
-      ]);
-
-      console.log("Groups infos retrieved and saved successfully.");
-    } catch (error) {
-      if (isAxiosError(error)) {
-        console.error(`Failed to retrieve groups infos: ${error.message}`);
+        console.error(`Failed to retrieve user info: ${error.message}`);
         if (error.response) {
           const responseData = JSON.stringify(error.response.data, null, 2);
           console.error(
@@ -200,8 +176,8 @@ if (cfg.activate_group_function) {
   }
 
   // Execute the function
-  getGroupData();
-} else {
-  console.log("Group function is deactivated.");
-  process.exit(0);
+  // Exécuter la fonction
+  getUserInfos();
 }
+
+_getUserInfos();

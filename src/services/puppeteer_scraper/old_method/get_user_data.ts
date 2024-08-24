@@ -1,15 +1,15 @@
 import puppeteer, { Page } from "puppeteer";
 import { config } from "dotenv";
-import { cfg, dir, urls, selector, env } from "../../libs/config";
-import { waitForUserInput } from "../../libs/user_action";
-import { checkDir } from "../../libs/check_requirements";
+import { cfg, dir, urls, selector, env } from "../../../libs/config";
+import { waitForUserInput } from "../../../libs/user_action";
+import { checkDir } from "../../../libs/check_requirements";
 import {
   checkIfMidnight,
   formatTime,
   wait,
   waitForLoadingToDisappear,
   waitTime,
-} from "../../libs/times_wait";
+} from "../../../libs/times_wait";
 import fs from "fs";
 import path from "path";
 

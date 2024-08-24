@@ -31,9 +31,11 @@ export const cfg = {
   web_api: {
     redirect404: "https://github.com/Kyuddle/VRCGetApiData",
     errorServer:
-      '{"error": "An internal server error has occurred. Please try again later."}',
+      "An internal server error has occurred. Please try again later.",
+    groupFeature: "Group feature is disabled",
   },
-  activate_group_function: true,
+  activate_group_feature: true,
+  activate_loop_fetching: true,
 } as const;
 
 /**
@@ -118,7 +120,7 @@ export const urls = {
  * // EN: Checks and throws an error if any critical environment variables are missing.
  * // FR: Vérifie et lance une erreur si des variables d'environnement critiques sont manquantes.
  */
-if (!process.env.GROUP_ID && cfg.activate_group_function) {
+if (!process.env.GROUP_ID && cfg.activate_group_feature) {
   throw new Error(
     "GROUP_ID is not set. Please check your environment variables (.env) / If you don't need just desactivate in CFG const."
   );
@@ -179,7 +181,8 @@ type ApiUrls = {
 
 type WebApi = {
   redirect404: string;
-  errorServer: any;
+  errorServer: string;
+  groupFeature: string;
 };
 
 type Urls = {
@@ -207,7 +210,8 @@ type Config = {
   browser: BrowserConfig;
   data_folder: string;
   web_api: WebApi;
-  activate_group_function: boolean;
+  activate_group_feature: boolean;
+  activate_loop_fetching: boolean;
 };
 
 type Env = {

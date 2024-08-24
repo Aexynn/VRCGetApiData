@@ -105,11 +105,11 @@ export function checkDir(target: string) {
           console.error(
             `Error in auth directory. Please run the command: ${command}`
           );
-          process.exit(1);
+          return false;
         }
       }
-      break;
 
+      return true;
     case "user":
       // Create the user directory if it does not exist
       // EN: If the 'users' directory does not exist, create it.
