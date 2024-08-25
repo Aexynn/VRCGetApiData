@@ -34,6 +34,7 @@ export const cfg = {
       "An internal server error has occurred. Please try again later.",
     groupFeature: "Group feature is disabled",
   },
+  activate_user_feature: true,
   activate_group_feature: true,
   activate_loop_fetching: true,
 } as const;
@@ -210,6 +211,7 @@ type Config = {
   browser: BrowserConfig;
   data_folder: string;
   web_api: WebApi;
+  activate_user_feature: boolean;
   activate_group_feature: boolean;
   activate_loop_fetching: boolean;
 };

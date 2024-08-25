@@ -45,30 +45,50 @@ function logSkippedCommand(
  * Generates an array of commands to run based on the environment and configuration.
  *
  * @param environment - The environment ('development' or 'production').
- * @param activateGroupFunction - Whether to include the 'api:group' command.
+ * @param activateGroupsFeatures - Whether to include the 'api:group' command.
+ * @param activateUsersFeatures - Whether to include the 'api:user', ... commands.
  * @returns An array of npm commands to execute.
  */
 function getCommands(
   environment: "development" | "production",
-  activateGroupFunction: boolean
+  activateGroupsFeatures: boolean,
+  activateUsersFeatures: boolean
 ): string[] {
   logSkippedCommand(
     environment,
-    activateGroupFunction,
+    activateGroupsFeatures,
     "api:group",
     "cfg.activate_group_feature"
   );
 
-  const baseCommands = [
-    environment === "development"
-      ? "npm run api:user"
-      : "npm run dist/api:user",
-    environment === "development"
-      ? "npm run api:user:groups"
-      : "npm run dist/api:user:groups",
-  ];
+  logSkippedCommand(
+    environment,
+    activateUsersFeatures,
+    "api:user",
+    "cfg.activate_user_feature"
+  );
 
-  if (activateGroupFunction) {
+  logSkippedCommand(
+    environment,
+    activateUsersFeatures,
+    "api:user:groups",
+    "cfg.activate_user_feature"
+  );
+
+  const baseCommands = [];
+
+  if (activateUsersFeatures) {
+    baseCommands.push(
+      environment === "development"
+        ? "npm run api:user"
+        : "npm run dist/api:user",
+      environment === "development"
+        ? "npm run api:user:groups"
+        : "npm run dist/api:user:groups"
+    );
+  }
+
+  if (activateGroupsFeatures) {
     baseCommands.push(
       environment === "development"
         ? "npm run api:group"
@@ -149,7 +169,11 @@ async function main(): Promise<void> {
   );
 
   const shouldLoop = cfg.activate_loop_fetching;
-  const commands = getCommands(environment, cfg.activate_group_feature);
+  const commands = getCommands(
+    environment,
+    cfg.activate_group_feature,
+    cfg.activate_user_feature
+  );
 
   if (shouldLoop) {
     console.log(`[Infos] Loop fetching is activated. Starting the loop.`);

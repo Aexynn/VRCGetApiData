@@ -206,7 +206,7 @@ export async function _getGroupData(): Promise<void> {
     // Execute the function
     getGroupData();
   } else {
-    console.log("Group function is deactivated.");
+    console.log("Groups Features is deactivated.");
     process.exit(0);
   }
 }
