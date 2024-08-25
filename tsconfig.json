@@ -1,11 +1,13 @@
 {
   "compilerOptions": {
+    "removeComments": true,
     "target": "ES2020",
     "module": "commonjs",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "sourceMap": true,
     "lib": ["ES2020", "DOM"],
     "outDir": "./dist",
     "rootDir": "./src"

@@ -16,3 +16,5 @@ node_modules/
 # Other directories
 /.old/
 /data/
+*.js
+/dist
