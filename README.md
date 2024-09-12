@@ -1,28 +1,28 @@
 <div align="center" id="top"> 
-  <img src="https://avatars.githubusercontent.com/u/169302941?s=80" alt="Kyuddle Avatar" draggable="false" />
+  <img src="https://avatars.githubusercontent.com/u/169302941?s=80" alt="Sinoryn Avatar" draggable="false" />
 </div>
 
 <div align="center">
   <h1>
-    <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/Kyuddle/VRCGetApiData?label=VRC Get Api Data&color=white" width="400" draggable="false" />
+    <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/Sinoryn/VRCGetApiData?label=VRC Get Api Data&color=white" width="400" draggable="false" />
   </h1>
 </div>
 
 <p align="center">
-  <a href="https://github.com/search?q=repo%3AKyuddle%2FVRCGetApiData+owner%3Akyuddle+NOT+path%3A%2F%5E%5C.github%5C%2F%2F+NOT+path%3A%2F%5E%5Cdist%5C%2F%2F+NOT+language%3A%22JSON+with+Comments%22+NOT+language%3AText+NOT+language%3A%22Git+Attributes%22+NOT+language%3AMarkdown&type=code" title="See the Used Language in Src" rel="noopener" target="_blank">
-    <img alt="Github top language" src="https://img.shields.io/github/languages/top/Kyuddle/VRCGetApiData?color=white" draggable="false" />
+  <a href="https://github.com/search?q=repo%3ASinoryn%2FVRCGetApiData+owner%3ASinoryn+NOT+path%3A%2F%5E%5C.github%5C%2F%2F+NOT+path%3A%2F%5E%5Cdist%5C%2F%2F+NOT+language%3A%22JSON+with+Comments%22+NOT+language%3AText+NOT+language%3A%22Git+Attributes%22+NOT+language%3AMarkdown&type=code" title="See the Used Language in Src" rel="noopener" target="_blank">
+    <img alt="Github top language" src="https://img.shields.io/github/languages/top/Sinoryn/VRCGetApiData?color=white" draggable="false" />
   </a>
   <span>
-    <img alt="Repository size" src="https://img.shields.io/github/repo-size/Kyuddle/VRCGetApiData?color=white" draggable="false" />
+    <img alt="Repository size" src="https://img.shields.io/github/repo-size/Sinoryn/VRCGetApiData?color=white" draggable="false" />
   </span>
-  <a href="https://github.com/Kyuddle/VRCGetApiData/graphs/contributors" title="See the contributors" rel="noopener" target="_blank">
-    <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/Kyuddle/VRCGetApiData?color=white">
+  <a href="https://github.com/Sinoryn/VRCGetApiData/graphs/contributors" title="See the contributors" rel="noopener" target="_blank">
+    <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/Sinoryn/VRCGetApiData?color=white">
   </a>
   <br />
-  <a href="https://github.com/Kyuddle/VRCGetApiData/graphs/commit-activity" title="See the Commit Activity" rel="noopener" target="_blank">
-    <img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/m/Kyuddle/VRCGetApiData?color=white" draggable="false" />
+  <a href="https://github.com/Sinoryn/VRCGetApiData/graphs/commit-activity" title="See the Commit Activity" rel="noopener" target="_blank">
+    <img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/m/Sinoryn/VRCGetApiData?color=white" draggable="false" />
   </a>
-  <a href="https://github.com/Kyuddle/VRCGetApiData/graphs/traffic" title="See the Graphs Traffic" rel="noopener" target="_blank">
+  <a href="https://github.com/Sinoryn/VRCGetApiData/graphs/traffic" title="See the Graphs Traffic" rel="noopener" target="_blank">
     <img alt="GitHub viewer counter" src="https://img.shields.io/endpoint?url=https%3A%2F%2Fhits.dwyl.com%2FKyudle%2FVRCGetApiData.json&color=white" />
   </a>
 </p>
@@ -38,7 +38,7 @@
   <a href="#white_check_mark-requirements">Requirements</a> &#xa0; | &#xa0;
   <a href="#checkered_flag-starting">Starting</a> &#xa0; | &#xa0;
   <a href="#memo-license">License</a> &#xa0; | &#xa0;
-  <a href="https://github.com/Kyuddle" target="_blank">Author</a>
+  <a href="https://github.com/Sinoryn" target="_blank">Author</a>
 </p>
 
 <br>
@@ -88,7 +88,7 @@ NICKNAME=YourUsernameUsedInTheCreation;
 PASSWORD=IfYouNeedToNotRefillAllTimeIsOptional;
 USER_ID=usr_YOURIDVRCHAT;
 GROUP_ID=grp_YOURGROUPID;
-USER_AGENT=EXAMPLE (https://github.com/Kyuddle/VRCGetApiData)
+USER_AGENT=EXAMPLE (https://github.com/Sinoryn/VRCGetApiData)
 PORT=IfYouWantToChangeTheDefaultWebAPIPort;
 ```
 
@@ -96,7 +96,7 @@ PORT=IfYouWantToChangeTheDefaultWebAPIPort;
 
 ```bash
 # Clone this project
-$ git clone https://github.com/Kyuddle/VRCGetApiData
+$ git clone https://github.com/Sinoryn/VRCGetApiData
 
 # Access
 $ cd VRCGetApiData
@@ -114,7 +114,7 @@ $ npm run start
 ## :memo: License
 
 This project is under license from MIT. For more details, see the [LICENSE](LICENSE) file. <br>
-Made with :heart: by <a href="https://github.com/Kyuddle" target="_blank">Kyuddle</a>
+Made with :heart: by <a href="https://github.com/Sinoryn" target="_blank">Sinoryn</a>
 
 &#xa0;
 
