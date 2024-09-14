@@ -11,7 +11,7 @@ import { isAxiosError } from "../../libs/errors";
 config();
 
 /**
- * Handles the authentication process for a user bot. :)
+ * Handles the authentication process for a user bot.
  *
  * @remarks
  * The `Auth` class manages the authentication process, including checking existing configurations,
