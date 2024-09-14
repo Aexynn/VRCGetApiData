@@ -1,10 +1,10 @@
 import puppeteer from "puppeteer";
 import { config } from "dotenv";
 import { Base64 } from "js-base64";
-import { cfg, dir, urls, selector, env } from "../../../libs/config";
-import { waitForUserInput } from "../../../libs/user_action";
-import { wait } from "../../../libs/times_wait";
-import { areAuthFilesValid, checkDir } from "../../../libs/check_requirements";
+import { cfg, dir, urls, selector, env } from "../../libs/config";
+import { waitForUserInput } from "../../libs/user_action";
+import { wait } from "../../libs/times_wait";
+import { areAuthFilesValid, checkDir } from "../../libs/check_requirements";
 import fs from "fs";
 import path from "path";
 
