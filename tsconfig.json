@@ -13,5 +13,5 @@
     "rootDir": "./src"
   },
   "include": ["./src/**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "./src/**/wip_not_use_please.*.ts"]
 }
