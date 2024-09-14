@@ -36,6 +36,8 @@ exports.dir = {
 };
 exports.urls = {
     profile: `${exports.cfg.vrchat_domain}/home/user/${process.env.USER_ID}`,
+    login: `${exports.cfg.vrchat_domain}/home/login`,
+    twoFA: `${exports.cfg.vrchat_domain}/home/emailtwofactorauth`,
     api: {
         auth: {
             login: `${exports.cfg.vrchat_domain}/api/1/auth/user`,

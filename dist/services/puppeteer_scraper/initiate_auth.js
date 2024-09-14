@@ -16,37 +16,7 @@ const path_1 = __importDefault(require("path"));
 (0, check_requirements_1.checkDir)("auth");
 const args = process.argv.slice(2);
 const force = args.includes("--force");
-function areAuthFilesValid() {
-    try {
-        const cookiesPath = path_1.default.join(config_1.dir.auth, "cookies.json");
-        const requirementsPath = path_1.default.join(config_1.dir.auth, "requirements.json");
-        const storagePath = path_1.default.join(config_1.dir.auth, "storage.json");
-        if (!fs_1.default.existsSync(cookiesPath) ||
-            !fs_1.default.existsSync(requirementsPath) ||
-            !fs_1.default.existsSync(storagePath)) {
-            console.log("One or more auth files are missing.");
-            return false;
-        }
-        const cookies = JSON.parse(fs_1.default.readFileSync(cookiesPath, "utf8"));
-        const requirements = JSON.parse(fs_1.default.readFileSync(requirementsPath, "utf8"));
-        const storage = JSON.parse(fs_1.default.readFileSync(storagePath, "utf8"));
-        const hasAuthCookies = cookies.some((cookie) => cookie.name.includes("auth"));
-        const hasTwoFactorAuthCookies = cookies.some((cookie) => cookie.name.includes("twoFactorAuth"));
-        const hasEncodedLogin = requirements.encoded_login &&
-            typeof requirements.encoded_login === "string";
-        if (!hasAuthCookies || !hasTwoFactorAuthCookies || !hasEncodedLogin) {
-            console.log("One or more required auth fields are missing or invalid.");
-            return false;
-        }
-        console.log("Auth files are valid.");
-        return true;
-    }
-    catch (error) {
-        console.error("Error validating auth files:", error);
-        return false;
-    }
-}
-if (!force && areAuthFilesValid()) {
+if (!force && (0, check_requirements_1.areAuthFilesValid)()) {
     console.log("Auth files are valid. Skipping login process.");
     process.exit(0);
 }

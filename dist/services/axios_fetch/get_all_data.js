@@ -15,11 +15,7 @@ function getCommands(environment, activateGroupsFeatures, activateUsersFeatures)
     logSkippedCommand(environment, activateGroupsFeatures, "api:group", "cfg.activate_group_feature");
     logSkippedCommand(environment, activateUsersFeatures, "api:user", "cfg.activate_user_feature");
     logSkippedCommand(environment, activateUsersFeatures, "api:user:groups", "cfg.activate_user_feature");
-    const baseCommands = [
-        environment === "development"
-            ? "npm run api:auth -- --check"
-            : "npm run dist/api:user -- --check",
-    ];
+    const baseCommands = [];
     if ((0, check_requirements_1.checkDir)("auth")) {
         if (activateUsersFeatures) {
             baseCommands.push(environment === "development"
@@ -34,6 +30,11 @@ function getCommands(environment, activateGroupsFeatures, activateUsersFeatures)
                 ? "npm run api:group"
                 : "npm run dist/api:group");
         }
+    }
+    else {
+        baseCommands.push(environment === "development"
+            ? "npm run scrape:auth"
+            : "npm run dist/scrape:user");
     }
     return baseCommands;
 }
