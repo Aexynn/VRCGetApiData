@@ -1,10 +1,10 @@
 import puppeteer from "puppeteer";
 import { config } from "dotenv";
 import { Base64 } from "js-base64";
-import { cfg, dir, urls, selector, env } from "../../libs/config";
-import { waitForUserInput } from "../../libs/user_action";
-import { wait } from "../../libs/times_wait";
-import { checkDir } from "../../libs/check_requirements";
+import { cfg, dir, urls, selector, env } from "../../../libs/config";
+import { waitForUserInput } from "../../../libs/user_action";
+import { wait } from "../../../libs/times_wait";
+import { areAuthFilesValid, checkDir } from "../../../libs/check_requirements";
 import fs from "fs";
 import path from "path";
 
@@ -20,60 +20,6 @@ checkDir("auth"); // EN: Ensure the "auth" directory exists; create it if necess
 const args = process.argv.slice(2);
 const force = args.includes("--force"); // EN: Check if the script was run with the "--force" argument.
 // FR: Vérifier si le script a été lancé avec l'argument "--force".
-
-/**
- * Check the validity of the authentication files.
- *
- * @returns True if all required auth files are valid, false otherwise.
- *
- * // EN: Verifies if the authentication files exist and contain valid data.
- * // FR: Vérifie si les fichiers d'authentification existent et contiennent des données valides.
- */
-function areAuthFilesValid(): boolean {
-  try {
-    const cookiesPath = path.join(dir.auth, "cookies.json");
-    const requirementsPath = path.join(dir.auth, "requirements.json");
-    const storagePath = path.join(dir.auth, "storage.json");
-
-    // EN: Check if required auth files exist.
-    // FR: Vérifier si les fichiers d'authentification requis existent.
-    if (
-      !fs.existsSync(cookiesPath) ||
-      !fs.existsSync(requirementsPath) ||
-      !fs.existsSync(storagePath)
-    ) {
-      console.log("One or more auth files are missing.");
-      return false;
-    }
-
-    const cookies = JSON.parse(fs.readFileSync(cookiesPath, "utf8"));
-    const requirements = JSON.parse(fs.readFileSync(requirementsPath, "utf8"));
-    const storage = JSON.parse(fs.readFileSync(storagePath, "utf8"));
-
-    // EN: Check for specific fields in the auth files.
-    // FR: Vérifier la présence de champs spécifiques dans les fichiers d'authentification.
-    const hasAuthCookies = cookies.some((cookie: { name: string }) =>
-      cookie.name.includes("auth")
-    );
-    const hasTwoFactorAuthCookies = cookies.some((cookie: { name: string }) =>
-      cookie.name.includes("twoFactorAuth")
-    );
-    const hasEncodedLogin =
-      requirements.encoded_login &&
-      typeof requirements.encoded_login === "string";
-
-    if (!hasAuthCookies || !hasTwoFactorAuthCookies || !hasEncodedLogin) {
-      console.log("One or more required auth fields are missing or invalid.");
-      return false;
-    }
-
-    console.log("Auth files are valid.");
-    return true;
-  } catch (error) {
-    console.error("Error validating auth files:", error);
-    return false;
-  }
-}
 
 // EN: If the auth files are valid and the "--force" flag is not used, skip the login process.
 // FR: Si les fichiers d'authentification sont valides et que le drapeau "--force" n'est pas utilisé, sauter le processus de connexion.

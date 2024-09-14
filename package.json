@@ -9,17 +9,17 @@
     "ts:clean": "tsc --build --clean",
     "ts:cb": "npm run ts:clean && npm run ts:build",
     "//": "Run commands",
-    "scrape:auth": "ts-node src/services/puppeteer_scraper/initiate_auth.ts",
-    "scrape:auth:force": "npm run scrape:auth -- --force",
-    "old@scrape:user": "ts-node src/services/puppeteer_scraper/old_method/get_user_data.ts",
+    "api:auth": "ts-node src/services/axios_fetch/initiate_auth.ts",
+    "api:auth:force": "npm run api:auth -- --force",
+    "api:auth:check": "npm run api:auth -- --check",
     "web:api": "ts-node src/services/express_web/server.ts",
     "api:user": "ts-node src/services/axios_fetch/users/get_user_infos.ts",
     "api:user:groups": "ts-node src/services/axios_fetch/users/get_user_groups.ts",
     "api:group": "ts-node src/services/axios_fetch/groups/get_group_data.ts",
     "api:all": "ts-node src/services/axios_fetch/get_all_data.ts",
-    "dist/scrape:auth": "node dist/services/puppeteer_scraper/initiate_auth.js",
-    "dist/scrape:auth:force": "npm run dist/scrape:auth -- --force",
-    "dist/old@scrape:user": "node dist/services/puppeteer_scraper/old_method/get_user_data.js",
+    "dist/api:auth": "node dist/services/axios_fetch/initiate_auth.js",
+    "dist/api:auth:force": "npm run dist/api:auth -- --force",
+    "dist/api:auth:check": "npm run dist/api:auth -- --check",
     "dist/web:api": "node dist/services/express_web/server.js",
     "dist/api:user": "node dist/services/axios_fetch/users/get_user_infos.js",
     "dist/api:user:groups": "node dist/services/axios_fetch/users/get_user_groups.js",
@@ -30,7 +30,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Kyuddle/VRCGetApiData.git"
+    "url": "git+https://github.com/Sinoryn/VRCGetApiData.git"
   },
   "keywords": [
     "scrape",
@@ -49,12 +49,12 @@
     "express",
     "axios"
   ],
-  "author": "Kyuddle",
+  "author": "Sinoryn",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Kyuddle/VRCGetApiData/issues"
+    "url": "https://github.com/Sinoryn/VRCGetApiData/issues"
   },
-  "homepage": "https://github.com/Kyuddle/VRCGetApiData#readme",
+  "homepage": "https://github.com/Sinoryn/VRCGetApiData#readme",
   "dependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^22.5.0",

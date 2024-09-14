@@ -95,10 +95,12 @@ export const dir = {
  * // FR: Définit les URLs pour la connexion, l'authentification à deux facteurs, le profil utilisateur et les points de terminaison de l'API.
  */
 export const urls = {
-  login: `${cfg.vrchat_domain}/home/login`,
-  twoFA: `${cfg.vrchat_domain}/home/emailtwofactorauth`,
   profile: `${cfg.vrchat_domain}/home/user/${process.env.USER_ID}`,
   api: {
+    auth: {
+      login: `${cfg.vrchat_domain}/api/1/auth/user`,
+      twofa: `${cfg.vrchat_domain}/api/1/auth/twofactorauth/{{method_twofa}}/verify`,
+    },
     users: `${cfg.vrchat_domain}/api/1/users/${process.env.USER_ID}`,
     groups: {
       list: `${cfg.vrchat_domain}/api/1/users/${process.env.USER_ID}/groups`,
@@ -227,4 +229,5 @@ export type { Config, BrowserConfig, ApiUrls, Urls, Selector, Env, Dir };
 
 // Optionally, you can enforce typing on the configuration object
 // Optionnellement, vous pouvez imposer le typage sur l'objet de configuration
+export const isDev = process.env.NODE_ENV === "development";
 const config: Config = cfg;

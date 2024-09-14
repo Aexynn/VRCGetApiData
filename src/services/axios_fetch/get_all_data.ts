@@ -1,7 +1,8 @@
 import { exec } from "child_process";
 import { promisify } from "util";
-import { cfg } from "../../libs/config";
+import { cfg, isDev } from "../../libs/config";
 import { formatTime, wait, waitRandomPeriod } from "../../libs/times_wait";
+import { checkDir } from "../../libs/check_requirements";
 
 const execPromise = promisify(exec);
 
@@ -75,25 +76,34 @@ function getCommands(
     "cfg.activate_user_feature"
   );
 
-  const baseCommands = [];
+  const baseCommands = [
+    environment === "development"
+      ? "npm run api:auth -- --check"
+      : "npm run dist/api:user -- --check",
+  ];
 
-  if (activateUsersFeatures) {
-    baseCommands.push(
-      environment === "development"
-        ? "npm run api:user"
-        : "npm run dist/api:user",
-      environment === "development"
-        ? "npm run api:user:groups"
-        : "npm run dist/api:user:groups"
-    );
-  }
+  if (checkDir("auth")) {
+    if (activateUsersFeatures) {
+      baseCommands.push(
+        environment === "development"
+          ? "npm run api:user"
+          : "npm run dist/api:user"
+      );
 
-  if (activateGroupsFeatures) {
-    baseCommands.push(
-      environment === "development"
-        ? "npm run api:group"
-        : "npm run dist/api:group"
-    );
+      baseCommands.push(
+        environment === "development"
+          ? "npm run api:user:groups"
+          : "npm run dist/api:user:groups"
+      );
+    }
+
+    if (activateGroupsFeatures) {
+      baseCommands.push(
+        environment === "development"
+          ? "npm run api:group"
+          : "npm run dist/api:group"
+      );
+    }
   }
 
   return baseCommands;
@@ -160,9 +170,9 @@ async function runCommands(
  * // FR: Détermine l'environnement et exécute le jeu de commandes npm correspondant dans une boucle avec des périodes d'attente aléatoires si configuré pour le faire.
  */
 async function main(): Promise<void> {
-  const rawEnvironment = process.env.NODE_ENV;
-  const environment: "development" | "production" =
-    rawEnvironment === "production" ? "production" : "development";
+  const environment: "development" | "production" = isDev
+    ? "development"
+    : "production";
 
   console.log(
     `[Infos] This process will execute the commands and wait between 1 and 1m 20s between each command to avoid overloading the API and minimize the risk of account bans.`
