@@ -95,7 +95,7 @@ jobs:
       - name: Commit and push dist folder
         if: env.CHANGES == 'true'
         run: |
-          git commit -m "[Bot] JS compiled for the new version. See details: ${LATEST_SHA}" -m "Co-authored-by: Kyuddle <169302941+Kyuddle@users.noreply.github.com>"
+          git commit -m "[Bot] JS compiled for the new version. See details: ${LATEST_SHA}" -m "Co-authored-by: Sinoryn <169302941+Sinoryn@users.noreply.github.com>"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
