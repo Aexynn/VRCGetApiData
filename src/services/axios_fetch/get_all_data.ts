@@ -76,11 +76,7 @@ function getCommands(
     "cfg.activate_user_feature"
   );
 
-  const baseCommands = [
-    environment === "development"
-      ? "npm run api:auth -- --check"
-      : "npm run dist/api:user -- --check",
-  ];
+  const baseCommands = [];
 
   if (checkDir("auth")) {
     if (activateUsersFeatures) {
@@ -104,6 +100,12 @@ function getCommands(
           : "npm run dist/api:group"
       );
     }
+  } else {
+    baseCommands.push(
+      environment === "development"
+        ? "npm run scrape:auth"
+        : "npm run dist/scrape:user"
+    );
   }
 
   return baseCommands;
