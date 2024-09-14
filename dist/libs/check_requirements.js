@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkDir = checkDir;
+exports.areAuthFilesValid = areAuthFilesValid;
 const config_1 = require("./config");
 const errors_1 = require("./errors");
 const fs_1 = __importDefault(require("fs"));
@@ -15,11 +16,7 @@ function checkDir(target) {
                 console.log(`Creating directory: ${config_1.dir.auth}`);
                 fs_1.default.mkdirSync(config_1.dir.auth, { recursive: true });
             }
-            const requiredFiles = [
-                "cookies.json",
-                "requirements.json",
-                "storage.json",
-            ];
+            const requiredFiles = ["cookies.json"];
             requiredFiles.forEach((file) => {
                 const filePath = path_1.default.join(config_1.dir.auth, file);
                 if (!fs_1.default.existsSync(filePath)) {
@@ -27,9 +24,7 @@ function checkDir(target) {
                 }
             });
             try {
-                const requirementsFilePath = path_1.default.join(config_1.dir.auth, "requirements.json");
                 const cookiesFilePath = path_1.default.join(config_1.dir.auth, "cookies.json");
-                const storageFilePath = path_1.default.join(config_1.dir.auth, "storage.json");
                 const loadJSON = (filePath) => {
                     if (fs_1.default.existsSync(filePath)) {
                         const data = fs_1.default.readFileSync(filePath, "utf-8");
@@ -37,24 +32,15 @@ function checkDir(target) {
                     }
                     return null;
                 };
-                const requirements = loadJSON(requirementsFilePath);
                 const cookies = loadJSON(cookiesFilePath);
-                const storage = loadJSON(storageFilePath);
-                if (!requirements || Object.keys(requirements).length === 0) {
-                    throw new Error("Requirements file is missing or empty. Please run the appropriate command.");
-                }
                 if (!cookies || Object.keys(cookies).length === 0) {
                     throw new Error("Cookies file is missing or empty. Please run the appropriate command.");
-                }
-                if (!storage) {
-                    console.log("Storage file is empty or missing. Proceeding without it.");
                 }
             }
             catch (error) {
                 if ((0, errors_1.isErrorWithMessage)(error)) {
                     console.error(error.message);
-                    const isDev = process.env.NODE_ENV === "development";
-                    const command = isDev ? "scrape:auth" : "dist/scrape:auth";
+                    const command = config_1.isDev ? "scrape:auth" : "dist/scrape:auth";
                     console.error(`Error in auth directory. Please run the command: ${command}`);
                     return false;
                 }
@@ -74,6 +60,28 @@ function checkDir(target) {
             break;
         default:
             throw new Error("checkDir needs a valid target.");
+    }
+}
+function areAuthFilesValid() {
+    try {
+        const cookiesPath = path_1.default.join(config_1.dir.auth, "user_bot.json");
+        if (!fs_1.default.existsSync(cookiesPath)) {
+            console.log("One or more auth files are missing.");
+            return false;
+        }
+        const cookies = JSON.parse(fs_1.default.readFileSync(cookiesPath, "utf8"));
+        const hasAuthCookies = cookies.some((cookie) => cookie.name.includes("auth"));
+        const hasTwoFactorAuthCookies = cookies.some((cookie) => cookie.name.includes("twoFactorAuth"));
+        if (!hasAuthCookies || !hasTwoFactorAuthCookies) {
+            console.log("One or more required auth fields are missing or invalid.");
+            return false;
+        }
+        console.log("Auth files are valid.");
+        return true;
+    }
+    catch (error) {
+        console.error("Error validating auth files:", error);
+        return false;
     }
 }
 //# sourceMappingURL=check_requirements.js.map

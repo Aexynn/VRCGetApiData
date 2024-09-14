@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.selector = exports.urls = exports.dir = exports.env = exports.cfg = void 0;
+exports.isDev = exports.selector = exports.urls = exports.dir = exports.env = exports.cfg = void 0;
 const dotenv_1 = require("dotenv");
 (0, dotenv_1.config)();
 exports.cfg = {
@@ -35,10 +35,12 @@ exports.dir = {
     auth: `${exports.cfg.data_folder}/auth`,
 };
 exports.urls = {
-    login: `${exports.cfg.vrchat_domain}/home/login`,
-    twoFA: `${exports.cfg.vrchat_domain}/home/emailtwofactorauth`,
     profile: `${exports.cfg.vrchat_domain}/home/user/${process.env.USER_ID}`,
     api: {
+        auth: {
+            login: `${exports.cfg.vrchat_domain}/api/1/auth/user`,
+            twofa: `${exports.cfg.vrchat_domain}/api/1/auth/twofactorauth/{{method_twofa}}/verify`,
+        },
         users: `${exports.cfg.vrchat_domain}/api/1/users/${process.env.USER_ID}`,
         groups: {
             list: `${exports.cfg.vrchat_domain}/api/1/users/${process.env.USER_ID}/groups`,
@@ -66,5 +68,6 @@ exports.selector = {
         next2FA: 'button[type="submit"]',
     },
 };
+exports.isDev = process.env.NODE_ENV === "development";
 const config = exports.cfg;
 //# sourceMappingURL=config.js.map

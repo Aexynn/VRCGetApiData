@@ -4,6 +4,7 @@ const child_process_1 = require("child_process");
 const util_1 = require("util");
 const config_1 = require("../../libs/config");
 const times_wait_1 = require("../../libs/times_wait");
+const check_requirements_1 = require("../../libs/check_requirements");
 const execPromise = (0, util_1.promisify)(child_process_1.exec);
 function logSkippedCommand(environment, activateCommand, commandName, cfgName) {
     if (!activateCommand) {
@@ -14,18 +15,25 @@ function getCommands(environment, activateGroupsFeatures, activateUsersFeatures)
     logSkippedCommand(environment, activateGroupsFeatures, "api:group", "cfg.activate_group_feature");
     logSkippedCommand(environment, activateUsersFeatures, "api:user", "cfg.activate_user_feature");
     logSkippedCommand(environment, activateUsersFeatures, "api:user:groups", "cfg.activate_user_feature");
-    const baseCommands = [];
-    if (activateUsersFeatures) {
-        baseCommands.push(environment === "development"
-            ? "npm run api:user"
-            : "npm run dist/api:user", environment === "development"
-            ? "npm run api:user:groups"
-            : "npm run dist/api:user:groups");
-    }
-    if (activateGroupsFeatures) {
-        baseCommands.push(environment === "development"
-            ? "npm run api:group"
-            : "npm run dist/api:group");
+    const baseCommands = [
+        environment === "development"
+            ? "npm run api:auth -- --check"
+            : "npm run dist/api:user -- --check",
+    ];
+    if ((0, check_requirements_1.checkDir)("auth")) {
+        if (activateUsersFeatures) {
+            baseCommands.push(environment === "development"
+                ? "npm run api:user"
+                : "npm run dist/api:user");
+            baseCommands.push(environment === "development"
+                ? "npm run api:user:groups"
+                : "npm run dist/api:user:groups");
+        }
+        if (activateGroupsFeatures) {
+            baseCommands.push(environment === "development"
+                ? "npm run api:group"
+                : "npm run dist/api:group");
+        }
     }
     return baseCommands;
 }
@@ -53,8 +61,9 @@ async function runCommands(commands, environment) {
     console.log(`All commands executed for ${environment} environment.`);
 }
 async function main() {
-    const rawEnvironment = process.env.NODE_ENV;
-    const environment = rawEnvironment === "production" ? "production" : "development";
+    const environment = config_1.isDev
+        ? "development"
+        : "production";
     console.log(`[Infos] This process will execute the commands and wait between 1 and 1m 20s between each command to avoid overloading the API and minimize the risk of account bans.`);
     const shouldLoop = config_1.cfg.activate_loop_fetching;
     const commands = getCommands(environment, config_1.cfg.activate_group_feature, config_1.cfg.activate_user_feature);
