@@ -96,6 +96,8 @@ export const dir = {
  */
 export const urls = {
   profile: `${cfg.vrchat_domain}/home/user/${process.env.USER_ID}`,
+  login: `${cfg.vrchat_domain}/home/login`,
+  twoFA: `${cfg.vrchat_domain}/home/emailtwofactorauth`,
   api: {
     auth: {
       login: `${cfg.vrchat_domain}/api/1/auth/user`,
