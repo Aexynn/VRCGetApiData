@@ -114,7 +114,7 @@ $ npm run start
 ## :memo: License
 
 This project is under license from MIT. For more details, see the [LICENSE](LICENSE) file. <br>
-Made with :heart: by <a href="https://github.com/Sinoryn" target="_blank">Sinoryn</a>
+Made with :heart: by <a href="https://github.com/Aexynn" target="_blank">Aexynn</a>
 
 &#xa0;
 
