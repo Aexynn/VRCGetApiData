@@ -96,7 +96,7 @@ PORT=IfYouWantToChangeTheDefaultWebAPIPort;
 
 ```bash
 # Clone this project
-$ git clone https://github.com/Aexy nous/VRCGetApiData
+$ git clone https://github.com/Aexynn/VRCGetApiData
 
 # Access
 $ cd VRCGetApiData
